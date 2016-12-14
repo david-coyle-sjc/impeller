@@ -1,28 +1,15 @@
 
-typealias StorablesFactory = (Int)->AnyStorable
+typealias StorablesFactory = (Int)->Storable
 
 protocol Storable {
     var age: Int { get }
     static var name: String { get }
     init(age: Int)
-    func resolve(with other:Self) -> Self
-}
-
-struct AnyStorable : Storable {
-    
-    private let _resolve: (Storable.StorableSelf)->Storable.StorableSelf
-    
-    init<Base:Storable>(_ base: Base) {
-        self._resolve = base.resolve
-    }
-    
-    var age: Int { return 0 }
-    static var name: String { return "" }
-    init(age: Int) {}
+    func resolve(with other:Storable) -> Self
 }
 
 extension Storable {
-    func resolve(with other:Self) -> Self {
+    func resolve(with other:Storable) -> Self {
         return self
     }
 }

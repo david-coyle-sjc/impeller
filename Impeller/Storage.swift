@@ -8,8 +8,6 @@
 
 public protocol Storage : class {
     
-    static var storagbleTypes: [Storable.Type] { get }
-    
     func value<T:StorablePrimitive>(for key:String) -> T?
     func value<T:Storable>(for key:String) -> T?
     func values<T:StorablePrimitive>(for key:String) -> [T]
@@ -21,11 +19,5 @@ public protocol Storage : class {
     func store<T:Storable>(_ value:inout T, for key:String)
     func store<T:Storable>(_ value:inout T?, for key:String)
     func store<T:Storable>(_ values:inout [T], for key:String)
-    
-}
-
-
-protocol ExchangableStorage : class {
-    
     
 }

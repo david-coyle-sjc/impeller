@@ -6,13 +6,11 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-typealias ExchangableLocalStorage = Storage & ExchangableStorage
-
 class Exchange {
-    let localStorage: ExchangableLocalStorage
+    let localStorage: Storage
     let cloudStorage: CloudStorage
     
-    init(localStorage: ExchangableLocalStorage, cloudStorage: CloudStorage) {
+    init(couplingLocalStorage localStorage: Storage, to cloudStorage: CloudStorage) {
         self.localStorage = localStorage
         self.cloudStorage = cloudStorage
     }

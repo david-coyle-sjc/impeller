@@ -8,15 +8,9 @@
 
 public class MemoryStorage: Storage {
     
-    static let storableTypes: [Storable.Type]
-
     private var storageDictionary = [String:Any]()
     private var currentStorageType = ""
     private var currentUniqueIdentifier = ""
-    
-    public init(storableTypes: [Storable.Type]) {
-        self.storableTypes = storableTypes
-    }
     
     private class func storeKey(forStoreType type:String, identifier: UniqueIdentifier, key: String) -> String {
         return "\(type)_\(identifier)_\(key)"
@@ -140,7 +134,7 @@ public class MemoryStorage: Storage {
             resolvedValue = value
             resolvedVersion = 0
         }
-        else if storeValue! == value && value.metadata == storeValue!.metadata {
+        else if storeValue!.isStorageEquivalent(to: value) && value.metadata == storeValue!.metadata {
             // Values unchanged from store. Don't save data again
             resolvedValue = storeValue!
             resolvedVersion = storeValue!.metadata.version
