@@ -7,5 +7,5 @@
 //
 
 protocol CloudStorage {
-    
+    associatedtype Cursor
 }

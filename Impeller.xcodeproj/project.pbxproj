@@ -94,7 +94,6 @@
 			isa = PBXGroup;
 			children = (
 				0737AAE71DF9524D00ABBA90 /* Impeller.h */,
-				0737AAE81DF9524D00ABBA90 /* Info.plist */,
 				0737AB061DF9534300ABBA90 /* General.swift */,
 				0737AAFE1DF952A200ABBA90 /* Metadata.swift */,
 				0737AB021DF952CB00ABBA90 /* Storable.swift */,
@@ -103,6 +102,7 @@
 				0737AB041DF9530C00ABBA90 /* MemoryStorage.swift */,
 				0707B4331DFDBA8E00FE8F40 /* Exchange.swift */,
 				0707B4351DFDBB4600FE8F40 /* CloudStorage.swift */,
+				0737AAE81DF9524D00ABBA90 /* Info.plist */,
 			);
 			path = Impeller;
 			sourceTree = "<group>";

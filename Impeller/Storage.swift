@@ -8,6 +8,7 @@
 
 public typealias Storage = StorageSource & StorageSink
 
+
 public protocol StorageSource: class {
     
     func value<T:StorablePrimitive>(for key:String) -> T?
@@ -16,6 +17,7 @@ public protocol StorageSource: class {
     func values<T:Storable>(for key:String) -> [T]
     
 }
+
 
 public protocol StorageSink: class {
 
@@ -28,6 +30,10 @@ public protocol StorageSink: class {
     
 }
 
-public protocol ExchangableStorage: class {
+
+public protocol Exchangable: class {
+    associatedtype Cursor
+
+    func storables(changedSince: Cursor, completionHandler completion: CompletionHandler?)
     
 }

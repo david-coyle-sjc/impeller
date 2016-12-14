@@ -6,7 +6,7 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-typealias CompletionHandler = ((Error?) -> Void)
+public typealias CompletionHandler = ((Error?) -> Void)
 
 public struct AnyEquatable: Equatable {
     fileprivate let value: Any
