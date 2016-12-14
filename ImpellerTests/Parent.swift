@@ -18,17 +18,13 @@ struct Parent: Storable {
 
     init() {}
     
-    init?(withStorage storage:Storage) {
+    init?(withStorage storage:StorageSource) {
         child = storage.value(for: "child")!
         children = storage.values(for: "children")
     }
     
-    mutating func store(in storage:Storage) {
+    mutating func store(in storage:StorageSink) {
         storage.store(&child, for: "child")
         storage.store(&children, for: "children")
-    }
-    
-    static func == (left: Parent, right: Parent) -> Bool {
-        return left.child == right.child
     }
 }

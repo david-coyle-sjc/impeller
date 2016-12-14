@@ -13,25 +13,50 @@ public protocol Storable {
     var metadata: Metadata { get set }
     static var storageType: StorageType { get }
     
-    init?(withStorage storage:Storage)
-    mutating func store(in storage:Storage)
+    init?(withStorage storage:StorageSource)
+    mutating func store(in storage:StorageSink)
     
     func resolvedValue(forConflictWith newValue:Storable) -> Self
 }
 
 public extension Storable {
-    func resolvedValue(forConflictWith newValue:Self) -> Self {
-        // Choose the local value by default
-        return self
+    func resolvedValue(forConflictWith newValue:Storable) -> Self {
+        return self // Choose the local value by default
     }
     
     func isStorageEquivalent(to other:Storable) -> Bool {
-        return storageRepresentation() == other.storageRepresentation()
+        return storageRepresentation == other.storageRepresentation
     }
     
-    func storageRepresentation() -> [String:AnyStorablePrimitive] {
-        return [String:AnyStorablePrimitive]()
+    var storageRepresentation: [String:AnyStorablePrimitive] {
+        let builder = StorageRepresentationBuilder(self)
+        return builder.representation
     }
+}
+
+final class StorageRepresentationBuilder: StorageSink {
+    private (set) var representation = [String:AnyStorablePrimitive]()
+    
+    init<T:Storable>(_ storable:T) {
+        var s = storable
+        s.store(in: self)
+    }
+    
+    func store<T:StorablePrimitive>(_ value:T, for key:String) {
+        representation[key] = AnyStorablePrimitive(value)
+    }
+    
+    func store<T:StorablePrimitive>(_ value:T?, for key:String) {
+        representation[key] = value != nil ? AnyStorablePrimitive(value!) : nil
+    }
+    
+    func store<T:StorablePrimitive>(_ values:[T], for key:String) {
+        representation[key] = AnyStorablePrimitive(values)
+    }
+    
+    func store<T:Storable>(_ value:inout T, for key:String) {}
+    func store<T:Storable>(_ value:inout T?, for key:String) {}
+    func store<T:Storable>(_ values:inout [T], for key:String) {}
 }
 
 
@@ -67,6 +92,7 @@ extension UInt16: StorablePrimitive {}
 extension Float: StorablePrimitive {}
 extension Double: StorablePrimitive {}
 extension Data: StorablePrimitive {}
+extension Array where Element: StorablePrimitive {}
 
 
 public struct AnyStorablePrimitive: StorablePrimitive {
@@ -80,11 +106,17 @@ public struct AnyStorablePrimitive: StorablePrimitive {
         self.capturedStorableValue = { value.storableValue }
     }
     
+    init<S: StorablePrimitive>(_ values: [S]) {
+        self.value = values
+        self.capturedEquals = { ((($0 as? [S]) ?? []) == values) }
+        self.capturedStorableValue = { values.map { $0.storableValue } }
+    }
+    
     public var storableValue: Any {
         return self.capturedStorableValue()
     }
 }
 
 public func ==(left: AnyStorablePrimitive, right: AnyStorablePrimitive) -> Bool {
-    return left.capturedEquals(right)
+    return left.capturedEquals(right.value)
 }

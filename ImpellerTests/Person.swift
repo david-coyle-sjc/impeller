@@ -19,13 +19,13 @@ struct Person: Storable {
     
     init() {}
     
-    init?(withStorage storage:Storage) {
+    init?(withStorage storage:StorageSource) {
         name = storage.value(for: "name")!
         age = storage.value(for: "age")
         tags = storage.values(for: "tags")
     }
     
-    func store(in storage:Storage) {
+    func store(in storage:StorageSink) {
         storage.store(name, for: "name")
         storage.store(age, for: "age")
         storage.store(tags, for: "tags")

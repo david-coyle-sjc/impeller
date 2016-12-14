@@ -17,11 +17,11 @@ struct Child: Storable {
         
     init() {}
     
-    init?(withStorage storage:Storage) {
+    init?(withStorage storage:StorageSource) {
         age = storage.value(for: "age")!
     }
     
-    mutating func store(in storage:Storage) {
+    mutating func store(in storage:StorageSink) {
         storage.store(age, for: "age")
     }
     
@@ -30,7 +30,7 @@ struct Child: Storable {
     }
     
     // Take child with newest timestamp
-    func resolvedValue(forConflictWith newValue: Child) -> Child {
-        return newValue.metadata.timestamp > metadata.timestamp ? newValue : self
+    func resolvedValue(forConflictWith newValue: Storable) -> Child {
+        return newValue.metadata.timestamp > metadata.timestamp ? newValue as! Child : self
     }
 }
