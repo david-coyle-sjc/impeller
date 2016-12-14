@@ -106,7 +106,31 @@ class BasicTests: XCTestCase {
         let fetchedParent:Parent! = store.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
         XCTAssertEqual(fetchedParent.child.age, 20)
     }
+    
+    func testChangingChildButSavingParent() {
+        var parent = Parent()
+        parent.child.age = 10
+        store.save(&parent)
+        XCTAssertEqual(parent.child.age, 10)
 
+        parent.child.age = 20
+        XCTAssertEqual(parent.child.age, 20)
+
+        store.save(&parent)
+        XCTAssertEqual(parent.child.age, 20)
+
+        let child:Child? = store.fetchValue(identifiedBy: parent.child.metadata.uniqueIdentifier)
+        XCTAssertEqual(child!.age, 20)
+    }
+    
+    func testFetching() {
+        var parent = Parent()
+        store.save(&parent)
+
+        let fetchedParent:Parent? = store.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
+        XCTAssertNotNil(fetchedParent)
+    }
+    
     func testResolvingConflicts() {
         var child = Child()
         child.age = 10

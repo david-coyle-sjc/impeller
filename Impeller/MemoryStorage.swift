@@ -11,6 +11,7 @@ public class MemoryStorage: Storage {
     private var storageDictionary = [String:Any]()
     private var currentStorageType = ""
     private var currentUniqueIdentifier = ""
+    private var identifiersOfUnchanged = Set<UniqueIdentifier>()
     
     private class func storeKey(forStoreType type:String, identifier: UniqueIdentifier, key: String) -> String {
         return "\(type)_\(identifier)_\(key)"
@@ -62,16 +63,19 @@ public class MemoryStorage: Storage {
     }
     
     public func store<T:StorablePrimitive>(_ value:T, for key:String) {
+        guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
         storageDictionary[storeKey] = value.storableValue
     }
     
     public func store<T:StorablePrimitive>(_ value:T?, for key:String) {
+        guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
         storageDictionary[storeKey] = value?.storableValue
     }
     
     public func store<T:StorablePrimitive>(_ values:[T], for key:String) {
+        guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
         storageDictionary[storeKey] = values.map { $0.storableValue }
     }
@@ -116,6 +120,7 @@ public class MemoryStorage: Storage {
     
     /// Resolves conflicts and saves, and sets the value on out to resolved value.
     public func save<T:Storable>(_ value: inout T) {
+        identifiersOfUnchanged = Set<UniqueIdentifier>()
         currentUniqueIdentifier = value.metadata.uniqueIdentifier
         currentStorageType = T.storageType
         storeValueAndDescendents(of: &value)
@@ -127,7 +132,7 @@ public class MemoryStorage: Storage {
         var resolvedValue:T
         var resolvedVersion:StorageVersion = 0
         let resolvedTimestamp = Date.timeIntervalSinceReferenceDate
-        var saveResult = true
+        var changed = true
         
         if storeValue == nil {
             // First save
@@ -136,9 +141,9 @@ public class MemoryStorage: Storage {
         }
         else if storeValue!.isStorageEquivalent(to: value) && value.metadata == storeValue!.metadata {
             // Values unchanged from store. Don't save data again
-            resolvedValue = storeValue!
-            resolvedVersion = storeValue!.metadata.version
-            saveResult = false
+            resolvedValue = value
+            resolvedVersion = value.metadata.version
+            changed = false
         }
         else if value.metadata.version == storeValue!.metadata.version {
             // Store has not changed since the base value was taken, so just save the new value directly
@@ -151,11 +156,8 @@ public class MemoryStorage: Storage {
             resolvedVersion = max(value.metadata.version, storeValue!.metadata.version) + 1
         }
         
-        if saveResult {
-            // Store result
-            resolvedValue.store(in: self)
-            
-            // Store metadata
+        if changed {
+            // Store metadata if changed
             resolvedValue.metadata.timestamp = resolvedTimestamp
             resolvedValue.metadata.version = resolvedVersion
             transaction {
@@ -163,7 +165,13 @@ public class MemoryStorage: Storage {
                 resolvedValue.metadata.store(in: self)
             }
         }
+        else {
+            // Store id of this unchanged value, so we can skip it in 'store' callbacks
+            identifiersOfUnchanged.insert(value.metadata.uniqueIdentifier)
+        }
         
+        // Always call store, even if unchanged, to check for changed descendents
+        resolvedValue.store(in: self)
         value = resolvedValue
     }
     
@@ -174,7 +182,7 @@ public class MemoryStorage: Storage {
             currentStorageType = T.storageType + "Metadata"
             if let metadata = Metadata(withStorage: self) {
                 currentStorageType = T.storageType
-                result = T(withStorage: self)
+                result = T.init(withStorage: self)
                 result?.metadata = metadata
             }
         }

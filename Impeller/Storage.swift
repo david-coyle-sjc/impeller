@@ -8,7 +8,7 @@
 
 public typealias Storage = StorageSource & StorageSink
 
-public protocol StorageSource : class {
+public protocol StorageSource: class {
     
     func value<T:StorablePrimitive>(for key:String) -> T?
     func value<T:Storable>(for key:String) -> T?
@@ -17,7 +17,7 @@ public protocol StorageSource : class {
     
 }
 
-public protocol StorageSink : class {
+public protocol StorageSink: class {
 
     func store<T:StorablePrimitive>(_ value:T, for key:String)
     func store<T:StorablePrimitive>(_ value:T?, for key:String)
@@ -28,3 +28,6 @@ public protocol StorageSink : class {
     
 }
 
+public protocol ExchangableStorage: class {
+    
+}

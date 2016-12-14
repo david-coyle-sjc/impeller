@@ -7,6 +7,7 @@
 //
 
 public typealias StorageType = String
+public typealias DictionaryRepresentation = [String:AnyStorablePrimitive]
 
 
 public protocol Storable {
@@ -29,13 +30,13 @@ public extension Storable {
     }
     
     var storageRepresentation: [String:AnyStorablePrimitive] {
-        let builder = StorageRepresentationBuilder(self)
+        let builder = DictionaryRepresentationBuilder(self)
         return builder.representation
     }
 }
 
-final class StorageRepresentationBuilder: StorageSink {
-    private (set) var representation = [String:AnyStorablePrimitive]()
+final class DictionaryRepresentationBuilder: StorageSink {
+    private (set) var representation = DictionaryRepresentation()
     
     init<T:Storable>(_ storable:T) {
         var s = storable
@@ -92,7 +93,6 @@ extension UInt16: StorablePrimitive {}
 extension Float: StorablePrimitive {}
 extension Double: StorablePrimitive {}
 extension Data: StorablePrimitive {}
-extension Array where Element: StorablePrimitive {}
 
 
 public struct AnyStorablePrimitive: StorablePrimitive {
