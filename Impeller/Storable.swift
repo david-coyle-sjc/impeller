@@ -20,6 +20,7 @@ public protocol Storable {
     func resolvedValue(forConflictWith newValue:Storable) -> Self
 }
 
+
 public extension Storable {
     func resolvedValue(forConflictWith newValue:Storable) -> Self {
         return self // Choose the local value by default
@@ -35,7 +36,8 @@ public extension Storable {
     }
 }
 
-final class DictionaryRepresentationBuilder: StorageSink {
+
+fileprivate final class DictionaryRepresentationBuilder: StorageSink {
     private (set) var representation = DictionaryRepresentation()
     
     init<T:Storable>(_ storable:T) {
@@ -55,68 +57,21 @@ final class DictionaryRepresentationBuilder: StorageSink {
         representation[key] = AnyStorablePrimitive(values)
     }
     
-    func store<T:Storable>(_ value:inout T, for key:String) {}
-    func store<T:Storable>(_ value:inout T?, for key:String) {}
-    func store<T:Storable>(_ values:inout [T], for key:String) {}
-}
-
-
-public protocol StorablePrimitive: Equatable {
-    init?(withStorableValue value: Any)
-    var storableValue: Any { get }
-}
-
-public extension StorablePrimitive {
-    init?(withStorableValue value: Any) {
-        if let value = value as? Self {
-            self = value
+    func store<T:Storable>(_ value:inout T, for key:String) {
+        representation[key] = AnyStorablePrimitive(value.metadata.uniqueIdentifier)
+    }
+    
+    func store<T:Storable>(_ value:inout T?, for key:String) {
+        if let id = value?.metadata.uniqueIdentifier {
+            representation[key] = AnyStorablePrimitive(id)
         }
         else {
-            return nil
+            representation[key] = nil
         }
     }
     
-    var storableValue: Any {
-        return self
+    func store<T:Storable>(_ values:inout [T], for key:String) {
+        representation[key] = AnyStorablePrimitive(values.map { $0.metadata.uniqueIdentifier })
     }
 }
 
-extension String: StorablePrimitive {}
-extension Int: StorablePrimitive {}
-extension Int64: StorablePrimitive {}
-extension Int32: StorablePrimitive {}
-extension Int16: StorablePrimitive {}
-extension UInt: StorablePrimitive {}
-extension UInt64: StorablePrimitive {}
-extension UInt32: StorablePrimitive {}
-extension UInt16: StorablePrimitive {}
-extension Float: StorablePrimitive {}
-extension Double: StorablePrimitive {}
-extension Data: StorablePrimitive {}
-
-
-public struct AnyStorablePrimitive: StorablePrimitive {
-    fileprivate let value: Any
-    fileprivate let capturedEquals: (Any) -> Bool
-    fileprivate let capturedStorableValue: () -> Any
-    
-    init<S: StorablePrimitive>(_ value: S) {
-        self.value = value
-        self.capturedEquals = { (($0 as? S) == value) }
-        self.capturedStorableValue = { value.storableValue }
-    }
-    
-    init<S: StorablePrimitive>(_ values: [S]) {
-        self.value = values
-        self.capturedEquals = { ((($0 as? [S]) ?? []) == values) }
-        self.capturedStorableValue = { values.map { $0.storableValue } }
-    }
-    
-    public var storableValue: Any {
-        return self.capturedStorableValue()
-    }
-}
-
-public func ==(left: AnyStorablePrimitive, right: AnyStorablePrimitive) -> Bool {
-    return left.capturedEquals(right.value)
-}
