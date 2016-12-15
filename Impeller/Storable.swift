@@ -7,7 +7,7 @@
 //
 
 public typealias StorageType = String
-public typealias DictionaryRepresentation = [String:AnyStorablePrimitive]
+public typealias StorableDictionary = [String:AnyStorablePrimitive]
 
 
 public protocol Storable {
@@ -31,14 +31,14 @@ public extension Storable {
     }
     
     var storageRepresentation: [String:AnyStorablePrimitive] {
-        let builder = DictionaryRepresentationBuilder(self)
+        let builder = StorableDictionaryBuilder(self)
         return builder.representation
     }
 }
 
 
-fileprivate final class DictionaryRepresentationBuilder: StorageSink {
-    private (set) var representation = DictionaryRepresentation()
+fileprivate final class StorableDictionaryBuilder: StorageSink {
+    private (set) var representation = StorableDictionary()
     
     init<T:Storable>(_ storable:T) {
         var s = storable

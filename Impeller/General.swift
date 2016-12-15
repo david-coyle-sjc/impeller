@@ -23,3 +23,19 @@ public struct AnyEquatable: Equatable {
 public func ==(lhs: AnyEquatable, rhs: AnyEquatable) -> Bool {
     return lhs.equals(rhs.value)
 }
+
+func uuid() -> String {
+    var data = Data(count: 16)
+    data.withUnsafeMutableBytes { uuid_generate_random($0) }
+
+    var result = ""
+    let hypenIndexes = [3,5,7,9]
+    for (index, byte) in data.enumerated() {
+        let next = String(byte, radix: 16, uppercase: true)
+        let lead = next.characters.count == 1 ? "0" : ""
+        let trail = hypenIndexes.contains(index) ? "-" : ""
+        result += lead + next + trail
+    }
+    
+    return result
+}

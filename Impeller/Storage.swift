@@ -31,9 +31,16 @@ public protocol StorageSink: class {
 }
 
 
-public protocol Exchangable: class {
-    associatedtype Cursor
+public protocol Cursor {
+    var data: Data { get set }
+}
 
-    func storables(changedSince: Cursor, completionHandler completion: CompletionHandler?)
+
+public protocol Exchangable: class {
+
+    var uniqueIdentifier: UniqueIdentifier { get }
     
+    func fetchStorableDictionaries(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [StorableDictionary], Cursor)->Void)
+    func assimilate(_ storableDictionaries: [StorableDictionary], completionHandler completion: CompletionHandler?)
+
 }

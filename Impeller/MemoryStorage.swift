@@ -6,8 +6,8 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-public class MemoryStorage: Storage {
-    
+public class MemoryStorage: Storage, Exchangable {
+    public var uniqueIdentifier: UniqueIdentifier = uuid()
     private var storageDictionary = [String:Any]()
     private var currentStorageType = ""
     private var currentUniqueIdentifier = ""
@@ -199,4 +199,12 @@ public class MemoryStorage: Storage {
         currentStorageType = storedType
     }
 
+    public func fetchStorableDictionaries(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [StorableDictionary], Cursor)->Void) {
+        // TODO: Implement fetching of changes since
+    }
+    
+    public func assimilate(_ storableDictionaries: [StorableDictionary], completionHandler completion: CompletionHandler?) {
+        // TODO: Implement inserting of changes
+    }
 }
+
