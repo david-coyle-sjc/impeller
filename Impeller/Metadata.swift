@@ -10,6 +10,10 @@ public typealias UniqueIdentifier = String
 typealias StorageVersion = UInt64
 
 public struct Metadata: Equatable {
+    
+    public enum Key: String {
+        case version, timestamp, uniqueIdentifier
+    }
         
     public private(set) var uniqueIdentifier: UniqueIdentifier
     public internal(set) var timestamp: TimeInterval // When stored
@@ -21,9 +25,9 @@ public struct Metadata: Equatable {
     }
     
     public init?(withStorage storage:Storage) {
-        if  let v:StorageVersion = storage.value(for: "version"),
-            let t:TimeInterval = storage.value(for: "timestamp"),
-            let i:UniqueIdentifier = storage.value(for: "uniqueIdentifier") {
+        if  let v:StorageVersion = storage.value(for: Key.version.rawValue),
+            let t:TimeInterval = storage.value(for: Key.timestamp.rawValue),
+            let i:UniqueIdentifier = storage.value(for: Key.uniqueIdentifier.rawValue) {
             version = v
             timestamp = t
             uniqueIdentifier = i
@@ -34,9 +38,9 @@ public struct Metadata: Equatable {
     }
     
     func store(in storage:Storage) {
-        storage.store(version, for: "version")
-        storage.store(timestamp, for: "timestamp")
-        storage.store(uniqueIdentifier, for: "uniqueIdentifier")
+        storage.store(version, for: Key.version.rawValue)
+        storage.store(timestamp, for: Key.timestamp.rawValue)
+        storage.store(uniqueIdentifier, for: Key.uniqueIdentifier.rawValue)
     }
     
     public static func == (left: Metadata, right: Metadata) -> Bool {

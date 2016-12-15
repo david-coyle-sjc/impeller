@@ -6,15 +6,41 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
+private let metadataTypeSuffix = "__Metadata"
+
+typealias ArrayReference = (identifiers: [UniqueIdentifier], type: String)
+typealias Reference = (identifier: UniqueIdentifier, type: String)
+
+
+fileprivate struct TimestampCursor: Cursor {
+    private (set) var timestamp: TimeInterval
+    
+    var data: Data {
+        get {
+            var t = timestamp
+            return Data(buffer: UnsafeBufferPointer(start: &t, count: 1))
+        }
+        set {
+            timestamp = data.withUnsafeBytes { $0.pointee }
+        }
+    }
+    
+    init(timestamp: TimeInterval) {
+        self.timestamp = timestamp
+    }
+}
+
+
 public class MemoryStorage: Storage, Exchangable {
+    
     public var uniqueIdentifier: UniqueIdentifier = uuid()
-    private var storageDictionary = [String:Any]()
+    private var keyValueStore = [String:Any]()
     private var currentStorageType = ""
     private var currentUniqueIdentifier = ""
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
     
     private class func storeKey(forStoreType type:String, identifier: UniqueIdentifier, key: String) -> String {
-        return "\(type)_\(identifier)_\(key)"
+        return "\(type)/\(identifier)/\(key)"
     }
     
     private func storeKey(forCurrentValueKey key:String) -> String {
@@ -23,7 +49,7 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func value<T:StorablePrimitive>(for key:String) -> T? {
         let storeKey = self.storeKey(forCurrentValueKey: key)
-        if let value = storageDictionary[storeKey] {
+        if let value = keyValueStore[storeKey] {
             return T(withStorableValue: value)
         }
         else {
@@ -33,16 +59,13 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func values<T:StorablePrimitive>(for key:String) -> [T] {
         let storeKey = self.storeKey(forCurrentValueKey: key)
-        return storageDictionary[storeKey] as? [T] ?? []
+        return keyValueStore[storeKey] as? [T] ?? []
     }
     
     public func value<T:Storable>(for key:String) -> T? {
         let storeKey = self.storeKey(forCurrentValueKey: key)
-        
-        guard let info = storageDictionary[storeKey] as? [String:Any] else {
-            return nil
-        }
-        guard let identifier = info["id"] as? UniqueIdentifier else {
+    
+        guard let (identifier, _) = keyValueStore[storeKey] as? Reference else {
             return nil
         }
         
@@ -51,11 +74,8 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func values<T:Storable>(for key:String) -> [T] {
         let storeKey = self.storeKey(forCurrentValueKey: key)
-        
-        guard let info = storageDictionary[storeKey] as? [String:Any] else {
-            return []
-        }
-        guard let identifiers = info["ids"] as? [UniqueIdentifier] else {
+    
+        guard let (identifiers, _) = keyValueStore[storeKey] as? ArrayReference else {
             return []
         }
         
@@ -65,25 +85,25 @@ public class MemoryStorage: Storage, Exchangable {
     public func store<T:StorablePrimitive>(_ value:T, for key:String) {
         guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
-        storageDictionary[storeKey] = value.storableValue
+        keyValueStore[storeKey] = value.storableValue
     }
     
     public func store<T:StorablePrimitive>(_ value:T?, for key:String) {
         guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
-        storageDictionary[storeKey] = value?.storableValue
+        keyValueStore[storeKey] = value?.storableValue
     }
     
     public func store<T:StorablePrimitive>(_ values:[T], for key:String) {
         guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
-        storageDictionary[storeKey] = values.map { $0.storableValue }
+        keyValueStore[storeKey] = values.map { $0.storableValue }
     }
     
     public func store<T:Storable>(_ value: inout T, for key:String) {
-        // Add a dictionary with info for the parent entry to be able to find the child
+        // Add a tuple with info for the parent entry to be able to find the child
         let storeKey = self.storeKey(forCurrentValueKey: key)
-        storageDictionary[storeKey] = ["id":value.metadata.uniqueIdentifier, "type":T.storageType]
+        keyValueStore[storeKey] = (identifier: value.metadata.uniqueIdentifier, type: T.storageType)
         
         // Recurse to store the value's data
         transaction {
@@ -106,7 +126,7 @@ public class MemoryStorage: Storage, Exchangable {
     public func store<T:Storable>(_ values: inout [T], for key:String) {
         let storeKey = self.storeKey(forCurrentValueKey: key)
         let identifiers = values.map { $0.metadata.uniqueIdentifier }
-        storageDictionary[storeKey] = ["ids":identifiers, "type":T.storageType]
+        keyValueStore[storeKey] = (identifiers: identifiers, type: T.storageType)
         
         // Recurse to store the values data
         for var value in values {
@@ -161,7 +181,7 @@ public class MemoryStorage: Storage, Exchangable {
             resolvedValue.metadata.timestamp = resolvedTimestamp
             resolvedValue.metadata.version = resolvedVersion
             transaction {
-                currentStorageType = T.storageType + "Metadata"
+                currentStorageType = T.storageType + metadataTypeSuffix
                 resolvedValue.metadata.store(in: self)
             }
         }
@@ -179,7 +199,7 @@ public class MemoryStorage: Storage, Exchangable {
         var result: T?
         transaction {
             currentUniqueIdentifier = uniqueIdentifier
-            currentStorageType = T.storageType + "Metadata"
+            currentStorageType = T.storageType + metadataTypeSuffix
             if let metadata = Metadata(withStorage: self) {
                 currentStorageType = T.storageType
                 result = T.init(withStorage: self)
@@ -199,11 +219,25 @@ public class MemoryStorage: Storage, Exchangable {
         currentStorageType = storedType
     }
 
-    public func fetchStorableDictionaries(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [StorableDictionary], Cursor)->Void) {
-        // TODO: Implement fetching of changes since
+    public func fetchStorableNodes(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [StorableNode], Cursor)->Void) {
+        // Gather identifiers by comparing the timestamps in metadata entries with cursor
+        var identifiersToInclude = Set<UniqueIdentifier>()
+        for (key, value) in keyValueStore {
+            let parts = key.components(separatedBy: "/")
+            let (type, id, propertyKey) = (parts[0], parts[1], parts[2])
+            if type.hasSuffix(metadataTypeSuffix) && propertyKey == Metadata.Key.timestamp.rawValue {
+                let time = value as! TimeInterval
+                let timestampCursor = cursor as! TimestampCursor?
+                if timestampCursor == nil || timestampCursor!.timestamp <= time {
+                    identifiersToInclude.insert(id)
+                }
+            }
+        }
+        
+        // TODO: Use a StorableNodeBuilder to build each StorableNode. Question is whether we should be passing around untyped StorableNode or typed values
     }
     
-    public func assimilate(_ storableDictionaries: [StorableDictionary], completionHandler completion: CompletionHandler?) {
+    public func assimilate(_ StorableNodes: [StorableNode], completionHandler completion: CompletionHandler?) {
         // TODO: Implement inserting of changes
     }
 }
