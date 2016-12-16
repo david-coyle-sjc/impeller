@@ -46,4 +46,12 @@ extension Dictionary {
         result[key] = value
         return result
     }
+    
+    func mapValues<T>(transform:(Value)->T) -> Dictionary<Key, T> {
+        var d = Dictionary<Key,T>()
+        for (key, value) in self {
+            d[key] = transform(value)
+        }
+        return d
+    }
 }
