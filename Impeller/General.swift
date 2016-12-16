@@ -39,3 +39,11 @@ func uuid() -> String {
     
     return result
 }
+
+extension Dictionary {
+    func appending(_ value: Value, for key: Key) -> [Key:Value] {
+        var result = self
+        result[key] = value
+        return result
+    }
+}

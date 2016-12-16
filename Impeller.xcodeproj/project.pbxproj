@@ -20,8 +20,9 @@
 		0737AB051DF9530C00ABBA90 /* MemoryStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AB041DF9530C00ABBA90 /* MemoryStorage.swift */; };
 		0737AB071DF9534300ABBA90 /* General.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AB061DF9534300ABBA90 /* General.swift */; };
 		0737AB091DF9537300ABBA90 /* Person.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AB081DF9537300ABBA90 /* Person.swift */; };
-		073CB7CD1E02F29200E567D7 /* StorableNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073CB7CC1E02F29200E567D7 /* StorableNode.swift */; };
+		073CB7CD1E02F29200E567D7 /* ValueTreeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073CB7CC1E02F29200E567D7 /* ValueTreeBuilder.swift */; };
 		077C8B5F1E01A80B0073B628 /* StorablePrimitive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077C8B5E1E01A80B0073B628 /* StorablePrimitive.swift */; };
+		07C769991E0469920063CB4A /* ValueTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C769981E0469920063CB4A /* ValueTree.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,8 +52,9 @@
 		0737AB041DF9530C00ABBA90 /* MemoryStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryStorage.swift; sourceTree = "<group>"; };
 		0737AB061DF9534300ABBA90 /* General.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = General.swift; sourceTree = "<group>"; };
 		0737AB081DF9537300ABBA90 /* Person.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Person.swift; sourceTree = "<group>"; };
-		073CB7CC1E02F29200E567D7 /* StorableNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorableNode.swift; sourceTree = "<group>"; };
+		073CB7CC1E02F29200E567D7 /* ValueTreeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValueTreeBuilder.swift; sourceTree = "<group>"; };
 		077C8B5E1E01A80B0073B628 /* StorablePrimitive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorablePrimitive.swift; sourceTree = "<group>"; };
+		07C769981E0469920063CB4A /* ValueTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValueTree.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,8 +101,9 @@
 				0737AB061DF9534300ABBA90 /* General.swift */,
 				0737AAFE1DF952A200ABBA90 /* Metadata.swift */,
 				0737AB021DF952CB00ABBA90 /* Storable.swift */,
-				073CB7CC1E02F29200E567D7 /* StorableNode.swift */,
 				077C8B5E1E01A80B0073B628 /* StorablePrimitive.swift */,
+				07C769981E0469920063CB4A /* ValueTree.swift */,
+				073CB7CC1E02F29200E567D7 /* ValueTreeBuilder.swift */,
 				0737AB001DF952C000ABBA90 /* Storage.swift */,
 				0737AB041DF9530C00ABBA90 /* MemoryStorage.swift */,
 				0707B4331DFDBA8E00FE8F40 /* Exchange.swift */,
@@ -239,9 +242,10 @@
 				0737AAFF1DF952A200ABBA90 /* Metadata.swift in Sources */,
 				0707B4341DFDBA8E00FE8F40 /* Exchange.swift in Sources */,
 				0737AB051DF9530C00ABBA90 /* MemoryStorage.swift in Sources */,
-				073CB7CD1E02F29200E567D7 /* StorableNode.swift in Sources */,
+				073CB7CD1E02F29200E567D7 /* ValueTreeBuilder.swift in Sources */,
 				0707B4361DFDBB4600FE8F40 /* CloudStorage.swift in Sources */,
 				0737AB011DF952C000ABBA90 /* Storage.swift in Sources */,
+				07C769991E0469920063CB4A /* ValueTree.swift in Sources */,
 				0737AB071DF9534300ABBA90 /* General.swift in Sources */,
 				077C8B5F1E01A80B0073B628 /* StorablePrimitive.swift in Sources */,
 			);

@@ -35,7 +35,7 @@ public class Exchange {
             let c1 = cursor(forExchangableIdentifiedBy: uniqueIdentifier)
             
             group.enter()
-            e1.fetchStorableNodes(forChangesSince: c1) {
+            e1.fetchValueTrees(forChangesSince: c1) {
                 error, dictionaries, newCursor in
                 defer { group.leave() }
                 guard returnError == nil else { return }

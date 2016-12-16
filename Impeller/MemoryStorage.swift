@@ -8,9 +8,6 @@
 
 private let metadataTypeSuffix = "__Metadata"
 
-typealias ArrayReference = (identifiers: [UniqueIdentifier], type: String)
-typealias Reference = (identifier: UniqueIdentifier, type: String)
-
 
 fileprivate struct TimestampCursor: Cursor {
     private (set) var timestamp: TimeInterval
@@ -219,7 +216,7 @@ public class MemoryStorage: Storage, Exchangable {
         currentStorageType = storedType
     }
 
-    public func fetchStorableNodes(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [StorableNode], Cursor)->Void) {
+    public func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [ValueTree], Cursor)->Void) {
         // Gather identifiers by comparing the timestamps in metadata entries with cursor
         var identifiersToInclude = Set<UniqueIdentifier>()
         for (key, value) in keyValueStore {
@@ -234,10 +231,10 @@ public class MemoryStorage: Storage, Exchangable {
             }
         }
         
-        // TODO: Use a StorableNodeBuilder to build each StorableNode. Question is whether we should be passing around untyped StorableNode or typed values
+        // TODO: Use a ValueTreeBuilder to build each ValueTree. Question is whether we should be passing around untyped ValueTree or typed values
     }
     
-    public func assimilate(_ StorableNodes: [StorableNode], completionHandler completion: CompletionHandler?) {
+    public func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: CompletionHandler?) {
         // TODO: Implement inserting of changes
     }
 }

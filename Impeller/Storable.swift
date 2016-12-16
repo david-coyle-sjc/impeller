@@ -8,6 +8,7 @@
 
 public typealias StorageType = String
 
+
 public protocol Storable {
     var metadata: Metadata { get set }
     static var storageType: StorageType { get }
@@ -15,22 +16,22 @@ public protocol Storable {
     init?(withStorage storage:StorageSource)
     mutating func store(in storage:StorageSink)
     
-    func resolvedValue(forConflictWith newValue:Storable) -> Self
+    func resolvedValue(forConflictWith newValue:Storable, context: Any?) -> Self
 }
 
 
 public extension Storable {
-    func resolvedValue(forConflictWith newValue:Storable) -> Self {
+    func resolvedValue(forConflictWith newValue:Storable, context: Any? = nil) -> Self {
         return self // Choose the local value by default
     }
     
     func isStorageEquivalent(to other:Storable) -> Bool {
-        return storableNode == other.storableNode
+        return valueTree == other.valueTree
     }
     
-    var storableNode: StorableNode {
-        let builder = StorableNodeBuilder(self)
-        return builder.storableNode
+    var valueTree: ValueTree {
+        let builder = ValueTreeBuilder(self)
+        return builder.valueTree
     }
 }
 

@@ -40,7 +40,7 @@ public protocol Exchangable: class {
 
     var uniqueIdentifier: UniqueIdentifier { get }
     
-    func fetchStorableNodes(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [StorableNode], Cursor)->Void)
-    func assimilate(_ StorableNodes: [StorableNode], completionHandler completion: CompletionHandler?)
+    func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [ValueTree], Cursor)->Void)
+    func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: CompletionHandler?)
 
 }
