@@ -32,16 +32,15 @@ public class MemoryStorage: Storage, Exchangable {
     
     public var uniqueIdentifier: UniqueIdentifier = uuid()
     private var keyValueStore = [String:Any]()
-    private var currentStorageType = ""
-    private var currentUniqueIdentifier = ""
+    private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storageType: "")
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
     
-    private class func storeKey(forStoreType type:String, identifier: UniqueIdentifier, key: String) -> String {
-        return "\(type)/\(identifier)/\(key)"
+    private class func storeKey(for reference: ValueTreeReference, key: String) -> String {
+        return "\(reference.storageType)/\(reference.uniqueIdentifier)/\(key)"
     }
     
     private func storeKey(forCurrentValueKey key:String) -> String {
-        return MemoryStorage.storeKey(forStoreType: currentStorageType, identifier: currentUniqueIdentifier, key: key)
+        return MemoryStorage.storeKey(for: currentTreeReference, key: key)
     }
     
     public func value<T:StorablePrimitive>(for key:String) -> T? {
@@ -62,37 +61,38 @@ public class MemoryStorage: Storage, Exchangable {
     public func value<T:Storable>(for key:String) -> T? {
         let storeKey = self.storeKey(forCurrentValueKey: key)
     
-        guard let (identifier, _) = keyValueStore[storeKey] as? Reference else {
+        guard let reference = keyValueStore[storeKey] as? ValueTreeReference else {
             return nil
         }
         
-        return fetchValue(identifiedBy: identifier)
+        return fetchValue(identifiedBy: reference.uniqueIdentifier)
     }
     
     public func values<T:Storable>(for key:String) -> [T] {
         let storeKey = self.storeKey(forCurrentValueKey: key)
     
-        guard let (identifiers, _) = keyValueStore[storeKey] as? ArrayReference else {
+        guard let property = keyValueStore[storeKey] as? ValueTree.Property,
+              let references = property.asValueTreeReferences() else {
             return []
         }
         
-        return identifiers.flatMap { fetchValue(identifiedBy: $0) }
+        return references.map { fetchValue(identifiedBy: $0.uniqueIdentifier)! }
     }
     
     public func store<T:StorablePrimitive>(_ value:T, for key:String) {
-        guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
+        guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
         keyValueStore[storeKey] = value.storableValue
     }
     
     public func store<T:StorablePrimitive>(_ value:T?, for key:String) {
-        guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
+        guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
         keyValueStore[storeKey] = value?.storableValue
     }
     
     public func store<T:StorablePrimitive>(_ values:[T], for key:String) {
-        guard !identifiersOfUnchanged.contains(currentUniqueIdentifier) else { return }
+        guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
         let storeKey = self.storeKey(forCurrentValueKey: key)
         keyValueStore[storeKey] = values.map { $0.storableValue }
     }
@@ -104,8 +104,7 @@ public class MemoryStorage: Storage, Exchangable {
         
         // Recurse to store the value's data
         transaction {
-            currentUniqueIdentifier = value.metadata.uniqueIdentifier
-            currentStorageType = T.storageType
+            currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
             storeValueAndDescendents(of: &value)
         }
     }
@@ -128,8 +127,7 @@ public class MemoryStorage: Storage, Exchangable {
         // Recurse to store the values data
         for var value in values {
             transaction {
-                currentUniqueIdentifier = value.metadata.uniqueIdentifier
-                currentStorageType = T.storageType
+                currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
                 storeValueAndDescendents(of: &value)
             }
         }
@@ -138,8 +136,7 @@ public class MemoryStorage: Storage, Exchangable {
     /// Resolves conflicts and saves, and sets the value on out to resolved value.
     public func save<T:Storable>(_ value: inout T) {
         identifiersOfUnchanged = Set<UniqueIdentifier>()
-        currentUniqueIdentifier = value.metadata.uniqueIdentifier
-        currentStorageType = T.storageType
+        currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
         storeValueAndDescendents(of: &value)
     }
     
@@ -178,7 +175,7 @@ public class MemoryStorage: Storage, Exchangable {
             resolvedValue.metadata.timestamp = resolvedTimestamp
             resolvedValue.metadata.version = resolvedVersion
             transaction {
-                currentStorageType = T.storageType + metadataTypeSuffix
+                currentTreeReference = ValueTreeReference(uniqueIdentifier: currentTreeReference.uniqueIdentifier, storageType: T.storageType + metadataTypeSuffix)
                 resolvedValue.metadata.store(in: self)
             }
         }
@@ -195,10 +192,9 @@ public class MemoryStorage: Storage, Exchangable {
     public func fetchValue<T:Storable>(identifiedBy uniqueIdentifier:UniqueIdentifier) -> T? {
         var result: T?
         transaction {
-            currentUniqueIdentifier = uniqueIdentifier
-            currentStorageType = T.storageType + metadataTypeSuffix
+            currentTreeReference = ValueTreeReference(uniqueIdentifier: uniqueIdentifier, storageType: T.storageType + metadataTypeSuffix)
             if let metadata = Metadata(withStorage: self) {
-                currentStorageType = T.storageType
+                currentTreeReference = ValueTreeReference(uniqueIdentifier: uniqueIdentifier, storageType: T.storageType)
                 result = T.init(withStorage: self)
                 result?.metadata = metadata
             }
@@ -207,13 +203,9 @@ public class MemoryStorage: Storage, Exchangable {
     }
     
     func transaction(in block: (Void)->Void ) {
-        let storedIdentifier = currentUniqueIdentifier
-        let storedType = currentStorageType
-        
+        let storedReference = currentTreeReference
         block()
-        
-        currentUniqueIdentifier = storedIdentifier
-        currentStorageType = storedType
+        currentTreeReference = storedReference
     }
 
     public func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [ValueTree], Cursor)->Void) {

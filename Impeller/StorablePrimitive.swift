@@ -42,27 +42,6 @@ extension Double: StorablePrimitive {}
 extension Data: StorablePrimitive {}
 
 
-public struct Null: StorablePrimitive {
-    
-    public init() {}
-    
-    public init?(withStorableValue value: Any) {
-        if let value = value as? String, value == "<<NULL>>" {
-            self.init()
-        }
-        else {
-            return nil
-        }
-    }
-    
-    public var storableValue: Any { return "<<NULL>>" }
-    
-    public static func ==(left: Null, right: Null) -> Bool {
-        return true
-    }
-}
-
-
 public struct AnyStorablePrimitive: StorablePrimitive {
     fileprivate let value: Any
     fileprivate let capturedEquals: (Any) -> Bool
@@ -72,12 +51,6 @@ public struct AnyStorablePrimitive: StorablePrimitive {
         self.value = value
         self.capturedEquals = { (($0 as? S) == value) }
         self.capturedStorableValue = { value.storableValue }
-    }
-    
-    init<S: StorablePrimitive>(_ values: [S]) {
-        self.value = values
-        self.capturedEquals = { ((($0 as? [S]) ?? []) == values) }
-        self.capturedStorableValue = { values.map { $0.storableValue } }
     }
     
     public var storableValue: Any {
