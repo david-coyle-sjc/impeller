@@ -223,7 +223,7 @@ public class MemoryStorage: Storage, Exchangable {
             }
         }
         
-        // TODO: Use a ValueTreeBuilder to build each ValueTree. Question is whether we should be passing around untyped ValueTree or typed values
+        // TODO: Use a ValueTreeBuilder to build each ValueTree.
     }
     
     public func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: CompletionHandler?) {

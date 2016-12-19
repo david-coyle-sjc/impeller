@@ -34,13 +34,3 @@ public protocol StorageSink: class {
 public protocol Cursor {
     var data: Data { get set }
 }
-
-
-public protocol Exchangable: class {
-
-    var uniqueIdentifier: UniqueIdentifier { get }
-    
-    func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [ValueTree], Cursor)->Void)
-    func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: CompletionHandler?)
-
-}
