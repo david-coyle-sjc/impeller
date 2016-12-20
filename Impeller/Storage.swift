@@ -12,9 +12,11 @@ public typealias Storage = StorageSource & StorageSink
 public protocol StorageSource: class {
     
     func value<T:StorablePrimitive>(for key:String) -> T?
+    func value<T:StorablePrimitive>(for key:String) -> T??
+    func values<T:StorablePrimitive>(for key:String) -> [T]?
     func value<T:Storable>(for key:String) -> T?
-    func values<T:StorablePrimitive>(for key:String) -> [T]
-    func values<T:Storable>(for key:String) -> [T]
+    func value<T:Storable>(for key:String) -> T??
+    func values<T:Storable>(for key:String) -> [T]?
     
 }
 

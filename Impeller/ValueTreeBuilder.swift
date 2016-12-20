@@ -27,7 +27,7 @@ final class ValueTreeBuilder: StorageSink {
     
     func store<T:StorablePrimitive>(_ values:[T], for key:String) {
         let storables = values.map { AnyStorablePrimitive($0) }
-        valueTree.set(key, to: .primitiveArray(storables))
+        valueTree.set(key, to: .primitives(storables))
     }
     
     func store<T:Storable>(_ value:inout T, for key:String) {

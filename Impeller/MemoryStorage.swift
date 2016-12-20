@@ -31,21 +31,25 @@ fileprivate struct TimestampCursor: Cursor {
 public class MemoryStorage: Storage, Exchangable {
     
     public var uniqueIdentifier: UniqueIdentifier = uuid()
-    private var keyValueStore = [String:Any]()
+    private var valueTreesByKey = [String:ValueTree]()
     private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storageType: "")
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
     
-    private class func storeKey(for reference: ValueTreeReference, key: String) -> String {
-        return "\(reference.storageType)/\(reference.uniqueIdentifier)/\(key)"
+    private class func key(for reference: ValueTreeReference) -> String {
+        return "\(reference.storageType)/\(reference.uniqueIdentifier)"
     }
     
-    private func storeKey(forCurrentValueKey key:String) -> String {
-        return MemoryStorage.storeKey(for: currentTreeReference, key: key)
+    private var currentValueTreeKey: String {
+        return MemoryStorage.key(for: currentTreeReference)
+    }
+    
+    private func currentTreeProperty(_ key: String) -> ValueTree.Property? {
+        return valueTreesByKey[currentValueTreeKey]?.get(key)
     }
     
     public func value<T:StorablePrimitive>(for key:String) -> T? {
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-        if let value = keyValueStore[storeKey] {
+        if  let property = currentTreeProperty(key),
+            let value = property.asPrimitive()?.storableValue {
             return T(withStorableValue: value)
         }
         else {
@@ -53,84 +57,129 @@ public class MemoryStorage: Storage, Exchangable {
         }
     }
     
-    public func values<T:StorablePrimitive>(for key:String) -> [T] {
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-        return keyValueStore[storeKey] as? [T] ?? []
+    public func value<T:StorablePrimitive>(for key:String) -> T?? {
+        if  let property = currentTreeProperty(key),
+            let optionalValue = property.asOptionalPrimitive(),
+            let value = optionalValue?.storableValue {
+            return T(withStorableValue: value)
+        }
+        else {
+            return nil
+        }
+    }
+    
+    public func values<T:StorablePrimitive>(for key:String) -> [T]? {
+        if  let property = currentTreeProperty(key),
+            let array = property.asPrimitives() {
+            return array.flatMap { T(withStorableValue: $0.storableValue) }
+        }
+        else {
+            return nil
+        }
     }
     
     public func value<T:Storable>(for key:String) -> T? {
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-    
-        guard let reference = keyValueStore[storeKey] as? ValueTreeReference else {
+        if  let property = currentTreeProperty(key),
+            let reference = property.asValueTreeReference() {
+            return fetchValue(identifiedBy: reference.uniqueIdentifier)
+        }
+        else {
             return nil
         }
-        
-        return fetchValue(identifiedBy: reference.uniqueIdentifier)
     }
     
-    public func values<T:Storable>(for key:String) -> [T] {
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-    
-        guard let property = keyValueStore[storeKey] as? ValueTree.Property,
-              let references = property.asValueTreeReferences() else {
-            return []
+    public func value<T:Storable>(for key:String) -> T?? {
+        if  let property = currentTreeProperty(key),
+            let optionalReference = property.asOptionalValueTreeReference(),
+            let reference = optionalReference {
+            return fetchValue(identifiedBy: reference.uniqueIdentifier)
         }
-        
-        return references.map { fetchValue(identifiedBy: $0.uniqueIdentifier)! }
+        else {
+            return nil
+        }
+    }
+    
+    public func values<T:Storable>(for key:String) -> [T]? {
+        if  let property = currentTreeProperty(key),
+            let references = property.asValueTreeReferences() {
+            return references.map { fetchValue(identifiedBy: $0.uniqueIdentifier)! }
+        }
+        else {
+            return nil
+        }
     }
     
     public func store<T:StorablePrimitive>(_ value:T, for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-        keyValueStore[storeKey] = value.storableValue
+        let property: ValueTree.Property = .primitive(AnyStorablePrimitive(value))
+        valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
     public func store<T:StorablePrimitive>(_ value:T?, for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-        keyValueStore[storeKey] = value?.storableValue
+        let optionalStorable = value != nil ? AnyStorablePrimitive(value!) : nil
+        let property: ValueTree.Property = .optionalPrimitive(optionalStorable)
+        valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
     public func store<T:StorablePrimitive>(_ values:[T], for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-        keyValueStore[storeKey] = values.map { $0.storableValue }
+        let storables = values.map { AnyStorablePrimitive($0) }
+        let property: ValueTree.Property = .primitives(storables)
+        valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
     public func store<T:Storable>(_ value: inout T, for key:String) {
-        // Add a tuple with info for the parent entry to be able to find the child
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-        keyValueStore[storeKey] = (identifier: value.metadata.uniqueIdentifier, type: T.storageType)
-        
+        let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
+        let property: ValueTree.Property = .valueTreeReference(reference)
+        valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
+
         // Recurse to store the value's data
         transaction {
-            currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
+            currentTreeReference = reference
             storeValueAndDescendents(of: &value)
         }
     }
     
+    // TODO: If nil is passed here, effectively all subtrees are deleted. Need some logic to handle that.
+    // Perhaps we need to wait until we have parent pointers to do this well.
     public func store<T:Storable>(_ value: inout T?, for key:String) {
-        if var unwrappedValue = value {
-            store(&unwrappedValue, for: key)
-            value = unwrappedValue
+        var reference: ValueTreeReference!
+        if let value = value {
+            reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
         }
-        else {
-            // TODO: Handle removal from the store. Would have to use info from parent to locate
+        
+        let property: ValueTree.Property = .optionalValueTreeReference(reference)
+        valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
+        
+        // Recurse to store the value's data
+        guard value != nil else { return }
+        transaction {
+            currentTreeReference = reference
+            var updatedValue = value!
+            storeValueAndDescendents(of: &updatedValue)
+            value = updatedValue
         }
     }
     
     public func store<T:Storable>(_ values: inout [T], for key:String) {
-        let storeKey = self.storeKey(forCurrentValueKey: key)
-        let identifiers = values.map { $0.metadata.uniqueIdentifier }
-        keyValueStore[storeKey] = (identifiers: identifiers, type: T.storageType)
+        let references = values.map {
+            ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storageType: T.storageType)
+        }
         
-        // Recurse to store the values data
-        for var value in values {
+        let property: ValueTree.Property = .valueTreeReferences(references)
+        valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
+        
+        // Recurse to store the value's data
+        var updatedValues = [T]()
+        for (var value, reference) in zip(values, references) {
             transaction {
-                currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
+                currentTreeReference = reference
                 storeValueAndDescendents(of: &value)
+                updatedValues.append(value)
             }
         }
+        values = updatedValues
     }
     
     /// Resolves conflicts and saves, and sets the value on out to resolved value.
@@ -209,21 +258,17 @@ public class MemoryStorage: Storage, Exchangable {
     }
 
     public func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [ValueTree], Cursor)->Void) {
-        // Gather identifiers by comparing the timestamps in metadata entries with cursor
-        var identifiersToInclude = Set<UniqueIdentifier>()
-        for (key, value) in keyValueStore {
-            let parts = key.components(separatedBy: "/")
-            let (type, id, propertyKey) = (parts[0], parts[1], parts[2])
-            if type.hasSuffix(metadataTypeSuffix) && propertyKey == Metadata.Key.timestamp.rawValue {
-                let time = value as! TimeInterval
-                let timestampCursor = cursor as! TimestampCursor?
-                if timestampCursor == nil || timestampCursor!.timestamp <= time {
-                    identifiersToInclude.insert(id)
-                }
+        let timestampCursor = cursor as! TimestampCursor?
+        var maximumTimestamp = timestampCursor?.timestamp ?? Date.distantPast.timeIntervalSinceReferenceDate
+        var valueTrees = [ValueTree]()
+        for (_, valueTree) in valueTreesByKey {
+            let time = valueTree.metadata.timestamp
+            if timestampCursor == nil || timestampCursor!.timestamp <= time {
+                valueTrees.append(valueTree)
+                maximumTimestamp = max(maximumTimestamp, time)
             }
         }
-        
-        // TODO: Use a ValueTreeBuilder to build each ValueTree.
+        completion(nil, valueTrees, TimestampCursor(timestamp: maximumTimestamp))
     }
     
     public func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: CompletionHandler?) {

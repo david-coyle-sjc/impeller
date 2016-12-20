@@ -16,14 +16,14 @@ public struct ValueTreeReference: Equatable {
 }
 
 
-public class ValueTree: Equatable {
+public class ValueTree: Equatable, Hashable {
     var metadata: Metadata
     var storageType: StorageType
     
     public enum Property: Equatable {
         case primitive(AnyStorablePrimitive)
         case optionalPrimitive(AnyStorablePrimitive?)
-        case primitiveArray([AnyStorablePrimitive])
+        case primitives([AnyStorablePrimitive])
         case valueTree(ValueTree)
         case optionalValueTree(ValueTree?)
         case valueTrees([ValueTree])
@@ -31,7 +31,7 @@ public class ValueTree: Equatable {
         case optionalValueTreeReference(ValueTreeReference?)
         case valueTreeReferences([ValueTreeReference])
         
-        func asPrimitive() -> AnyStorablePrimitive? {
+        public func asPrimitive() -> AnyStorablePrimitive? {
             switch self {
             case .primitive(let v):
                 return v
@@ -40,7 +40,7 @@ public class ValueTree: Equatable {
             }
         }
         
-        func asOptionalPrimitive() -> AnyStorablePrimitive?? {
+        public func asOptionalPrimitive() -> AnyStorablePrimitive?? {
             switch self {
             case .optionalPrimitive(let v):
                 return v
@@ -49,16 +49,16 @@ public class ValueTree: Equatable {
             }
         }
         
-        func asPrimitiveArray() -> [AnyStorablePrimitive]? {
+        public func asPrimitives() -> [AnyStorablePrimitive]? {
             switch self {
-            case .primitiveArray(let v):
+            case .primitives(let v):
                 return v
             default:
                 return nil
             }
         }
         
-        func asValueTree() -> ValueTree? {
+        public func asValueTree() -> ValueTree? {
             switch self {
             case .valueTree(let v):
                 return v
@@ -67,7 +67,7 @@ public class ValueTree: Equatable {
             }
         }
         
-        func asOptionalValueTree() -> ValueTree?? {
+        public func asOptionalValueTree() -> ValueTree?? {
             switch self {
             case .optionalValueTree(let v):
                 return v
@@ -76,7 +76,7 @@ public class ValueTree: Equatable {
             }
         }
         
-        func asValueTrees() -> [ValueTree]? {
+        public func asValueTrees() -> [ValueTree]? {
             switch self {
             case .valueTrees(let v):
                 return v
@@ -85,7 +85,7 @@ public class ValueTree: Equatable {
             }
         }
         
-        func asValueTreeReference() -> ValueTreeReference? {
+        public func asValueTreeReference() -> ValueTreeReference? {
             switch self {
             case .valueTreeReference(let v):
                 return v
@@ -96,7 +96,7 @@ public class ValueTree: Equatable {
             }
         }
         
-        func asOptionalValueTreeReference() -> ValueTreeReference?? {
+        public func asOptionalValueTreeReference() -> ValueTreeReference?? {
             switch self {
             case .optionalValueTreeReference(let v):
                 return v
@@ -107,7 +107,7 @@ public class ValueTree: Equatable {
             }
         }
         
-        func asValueTreeReferences() -> [ValueTreeReference]? {
+        public func asValueTreeReferences() -> [ValueTreeReference]? {
             switch self {
             case .valueTreeReferences(let v):
                 return v
@@ -126,7 +126,7 @@ public class ValueTree: Equatable {
                 return .optionalValueTreeReference(tree?.valueTreeReference)
             case .valueTrees(let trees):
                 return .valueTreeReferences(trees.map { $0.valueTreeReference })
-            case .primitive, .optionalPrimitive, .primitiveArray, .valueTreeReference, .optionalValueTreeReference, .valueTreeReferences:
+            case .primitive, .optionalPrimitive, .primitives, .valueTreeReference, .optionalValueTreeReference, .valueTreeReferences:
                 return self
             }
         }
@@ -137,7 +137,7 @@ public class ValueTree: Equatable {
                 return l == r
             case let (.optionalPrimitive(l), .optionalPrimitive(r)):
                 return l == r
-            case let (.primitiveArray(l), .primitiveArray(r)):
+            case let (.primitives(l), .primitives(r)):
                 return l == r
             case let (.valueTree(l), .valueTree(r)):
                 return l == r
@@ -159,21 +159,25 @@ public class ValueTree: Equatable {
     
     private var propertiesByKey = [String:Property]()
     
-    var valueTreeReference: ValueTreeReference {
+    public var valueTreeReference: ValueTreeReference {
         return ValueTreeReference(uniqueIdentifier: metadata.uniqueIdentifier, storageType: storageType)
     }
 
-    init(storageType: StorageType, metadata: Metadata) {
+    public init(storageType: StorageType, metadata: Metadata) {
         self.storageType = storageType
         self.metadata = metadata
     }
     
-    func get(_ key: String) -> Property? {
+    public func get(_ key: String) -> Property? {
         return propertiesByKey[key]
     }
     
-    func set(_ key: String, to property: Property) {
+    public func set(_ key: String, to property: Property) {
         propertiesByKey[key] = property
+    }
+    
+    public var hashValue: Int {
+        return metadata.uniqueIdentifier.hash
     }
     
     public static func ==(left: ValueTree, right: ValueTree) -> Bool {

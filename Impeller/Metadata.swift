@@ -15,7 +15,7 @@ public struct Metadata: Equatable {
         case version, timestamp, uniqueIdentifier
     }
         
-    public private(set) var uniqueIdentifier: UniqueIdentifier
+    public let uniqueIdentifier: UniqueIdentifier
     public internal(set) var timestamp: TimeInterval // When stored
     var version: StorageVersion = 0
     
