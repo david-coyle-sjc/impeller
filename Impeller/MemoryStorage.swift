@@ -61,9 +61,13 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func optionalValue<T:StorablePrimitive>(for key:String) -> T?? {
         if  let property = currentTreeProperty(key),
-            let optionalValue = property.asOptionalPrimitive(),
-            let value = optionalValue?.storableValue {
-            return T(withStorableValue: value)
+            let optionalValue = property.asOptionalPrimitive() {
+            if let value = optionalValue?.storableValue {
+                return T(withStorableValue: value)
+            }
+            else {
+                return nil as T?
+            }
         }
         else {
             return nil
@@ -228,6 +232,7 @@ public class MemoryStorage: Storage, Exchangable {
             // Store metadata if changed
             resolvedValue.metadata.timestamp = resolvedTimestamp
             resolvedValue.metadata.version = resolvedVersion
+            currentValueTree!.metadata = resolvedValue.metadata
         }
         else {
             // Store id of this unchanged value, so we can skip it in 'store' callbacks

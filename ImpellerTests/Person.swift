@@ -32,6 +32,6 @@ struct Person: Storable {
     }
     
     static func == (left: Person, right: Person) -> Bool {
-        return left.name == right.name && left.age == right.age
+        return left.name == right.name && left.age == right.age && left.tags == right.tags
     }
 }
