@@ -6,8 +6,6 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-private let metadataTypeSuffix = "__Metadata"
-
 
 fileprivate struct TimestampCursor: Cursor {
     private (set) var timestamp: TimeInterval
@@ -43,6 +41,10 @@ public class MemoryStorage: Storage, Exchangable {
         return MemoryStorage.key(for: currentTreeReference)
     }
     
+    private var currentValueTree: ValueTree? {
+        return valueTreesByKey[currentValueTreeKey]
+    }
+    
     private func currentTreeProperty(_ key: String) -> ValueTree.Property? {
         return valueTreesByKey[currentValueTreeKey]?.get(key)
     }
@@ -57,7 +59,7 @@ public class MemoryStorage: Storage, Exchangable {
         }
     }
     
-    public func value<T:StorablePrimitive>(for key:String) -> T?? {
+    public func optionalValue<T:StorablePrimitive>(for key:String) -> T?? {
         if  let property = currentTreeProperty(key),
             let optionalValue = property.asOptionalPrimitive(),
             let value = optionalValue?.storableValue {
@@ -88,7 +90,7 @@ public class MemoryStorage: Storage, Exchangable {
         }
     }
     
-    public func value<T:Storable>(for key:String) -> T?? {
+    public func optionalValue<T:Storable>(for key:String) -> T?? {
         if  let property = currentTreeProperty(key),
             let optionalReference = property.asOptionalValueTreeReference(),
             let reference = optionalReference {
@@ -191,6 +193,9 @@ public class MemoryStorage: Storage, Exchangable {
     
     func storeValueAndDescendents<T:Storable>(of value: inout T) {
         let storeValue:T? = fetchValue(identifiedBy: value.metadata.uniqueIdentifier)
+        if storeValue == nil {
+            valueTreesByKey[currentValueTreeKey] = ValueTree(storageType: T.storageType, metadata: value.metadata)
+        }
         
         var resolvedValue:T
         var resolvedVersion:StorageVersion = 0
@@ -223,10 +228,6 @@ public class MemoryStorage: Storage, Exchangable {
             // Store metadata if changed
             resolvedValue.metadata.timestamp = resolvedTimestamp
             resolvedValue.metadata.version = resolvedVersion
-            transaction {
-                currentTreeReference = ValueTreeReference(uniqueIdentifier: currentTreeReference.uniqueIdentifier, storageType: T.storageType + metadataTypeSuffix)
-                resolvedValue.metadata.store(in: self)
-            }
         }
         else {
             // Store id of this unchanged value, so we can skip it in 'store' callbacks
@@ -241,12 +242,13 @@ public class MemoryStorage: Storage, Exchangable {
     public func fetchValue<T:Storable>(identifiedBy uniqueIdentifier:UniqueIdentifier) -> T? {
         var result: T?
         transaction {
-            currentTreeReference = ValueTreeReference(uniqueIdentifier: uniqueIdentifier, storageType: T.storageType + metadataTypeSuffix)
-            if let metadata = Metadata(withStorage: self) {
-                currentTreeReference = ValueTreeReference(uniqueIdentifier: uniqueIdentifier, storageType: T.storageType)
-                result = T.init(withStorage: self)
-                result?.metadata = metadata
+            currentTreeReference = ValueTreeReference(uniqueIdentifier: uniqueIdentifier, storageType: T.storageType)
+            guard let valueTree = currentValueTree else {
+                return
             }
+            
+            result = T.init(withStorage: self)
+            result?.metadata = valueTree.metadata
         }
         return result
     }

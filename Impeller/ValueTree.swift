@@ -17,8 +17,8 @@ public struct ValueTreeReference: Equatable {
 
 
 public class ValueTree: Equatable, Hashable {
-    var metadata: Metadata
-    var storageType: StorageType
+    public var metadata: Metadata
+    public var storageType: StorageType
     
     public enum Property: Equatable {
         case primitive(AnyStorablePrimitive)

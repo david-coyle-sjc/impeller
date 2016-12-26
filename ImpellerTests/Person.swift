@@ -21,8 +21,8 @@ struct Person: Storable {
     
     init?(withStorage storage:StorageSource) {
         name = storage.value(for: "name")!
-        age = storage.value(for: "age")
-        tags = storage.values(for: "tags")
+        age = storage.optionalValue(for: "age")!
+        tags = storage.values(for: "tags")!
     }
     
     func store(in storage:StorageSink) {

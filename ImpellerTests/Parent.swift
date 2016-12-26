@@ -20,7 +20,7 @@ struct Parent: Storable {
     
     init?(withStorage storage:StorageSource) {
         child = storage.value(for: "child")!
-        children = storage.values(for: "children")
+        children = storage.values(for: "children")!
     }
     
     mutating func store(in storage:StorageSink) {
