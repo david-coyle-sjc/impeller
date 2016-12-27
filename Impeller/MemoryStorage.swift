@@ -34,6 +34,8 @@ public class MemoryStorage: Storage, Exchangable {
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
     private var saveContext: Any?
     
+    public init() {}
+    
     private class func key(for reference: ValueTreeReference) -> String {
         return "\(reference.storageType)/\(reference.uniqueIdentifier)"
     }

@@ -11,6 +11,7 @@
 		0707B4321DF9DE0F00FE8F40 /* Child.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0707B4311DF9DE0F00FE8F40 /* Child.swift */; };
 		0707B4341DFDBA8E00FE8F40 /* Exchange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0707B4331DFDBA8E00FE8F40 /* Exchange.swift */; };
 		0707B4361DFDBB4600FE8F40 /* CloudStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0707B4351DFDBB4600FE8F40 /* CloudStorage.swift */; };
+		072576241E128F680086D1D5 /* ExchangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072576231E128F680086D1D5 /* ExchangeTests.swift */; };
 		0737AAEE1DF9524E00ABBA90 /* Impeller.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0737AAE41DF9524D00ABBA90 /* Impeller.framework */; };
 		0737AAF31DF9524E00ABBA90 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AAF21DF9524E00ABBA90 /* BasicTests.swift */; };
 		0737AAF51DF9524E00ABBA90 /* Impeller.h in Headers */ = {isa = PBXBuildFile; fileRef = 0737AAE71DF9524D00ABBA90 /* Impeller.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -40,6 +41,7 @@
 		0707B4311DF9DE0F00FE8F40 /* Child.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Child.swift; sourceTree = "<group>"; };
 		0707B4331DFDBA8E00FE8F40 /* Exchange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exchange.swift; sourceTree = "<group>"; };
 		0707B4351DFDBB4600FE8F40 /* CloudStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudStorage.swift; sourceTree = "<group>"; };
+		072576231E128F680086D1D5 /* ExchangeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeTests.swift; sourceTree = "<group>"; };
 		0737AAE41DF9524D00ABBA90 /* Impeller.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Impeller.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0737AAE71DF9524D00ABBA90 /* Impeller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Impeller.h; sourceTree = "<group>"; };
 		0737AAE81DF9524D00ABBA90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 				0707B42F1DF9DDC300FE8F40 /* Parent.swift */,
 				0707B4311DF9DE0F00FE8F40 /* Child.swift */,
 				0737AAF21DF9524E00ABBA90 /* BasicTests.swift */,
+				072576231E128F680086D1D5 /* ExchangeTests.swift */,
 				0737AAF41DF9524E00ABBA90 /* Info.plist */,
 			);
 			path = ImpellerTests;
@@ -257,6 +260,7 @@
 			files = (
 				0737AB091DF9537300ABBA90 /* Person.swift in Sources */,
 				0737AAF31DF9524E00ABBA90 /* BasicTests.swift in Sources */,
+				072576241E128F680086D1D5 /* ExchangeTests.swift in Sources */,
 				0707B4321DF9DE0F00FE8F40 /* Child.swift in Sources */,
 				0707B4301DF9DDC300FE8F40 /* Parent.swift in Sources */,
 			);

@@ -123,14 +123,6 @@ class BasicTests: XCTestCase {
         XCTAssertEqual(child!.age, 20)
     }
     
-    func testFetching() {
-        var parent = Parent()
-        store.save(&parent)
-
-        let fetchedParent:Parent? = store.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
-        XCTAssertNotNil(fetchedParent)
-    }
-    
     func testResolvingConflicts() {
         var child = Child()
         child.age = 10

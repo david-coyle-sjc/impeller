@@ -41,7 +41,7 @@ func uuid() -> String {
 }
 
 extension Dictionary {
-    func appending(_ value: Value, for key: Key) -> [Key:Value] {
+    func setting(_ value: Value, for key: Key) -> [Key:Value] {
         var result = self
         result[key] = value
         return result
