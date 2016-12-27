@@ -6,13 +6,18 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-final class ValueTreeBuilder: StorageSink {
+final class ValueTreeBuilder<T:Storable> : StorageSink {
     private (set) var valueTree: ValueTree
+    private var storable: T
     
-    init<T:Storable>(_ storable:T) {
+    init(_ storable:T) {
         valueTree = ValueTree(storageType: T.storageType, metadata: storable.metadata)
-        var s = storable
-        s.store(in: self)
+        self.storable = storable
+        self.save(&self.storable)
+    }
+    
+    func save<T:Storable>(_ value: inout T, context: Any? = nil) {
+        storable.store(in: self)
     }
     
     func store<T:StorablePrimitive>(_ value:T, for key:String) {

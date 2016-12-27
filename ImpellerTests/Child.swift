@@ -30,7 +30,7 @@ struct Child: Storable {
     }
     
     // Take child with newest timestamp
-    func resolvedValue(forConflictWith newValue: Storable) -> Child {
+    func resolvedValue(forConflictWith newValue:Storable, context: Any? = nil) -> Child {
         return newValue.metadata.timestamp > metadata.timestamp ? newValue as! Child : self
     }
 }

@@ -22,6 +22,8 @@ public protocol StorageSource: class {
 
 
 public protocol StorageSink: class {
+    
+    func save<T:Storable>(_ value: inout T, context: Any?)
 
     func store<T:StorablePrimitive>(_ value:T, for key:String)
     func store<T:StorablePrimitive>(_ optionalValue:T?, for key:String)
@@ -36,3 +38,4 @@ public protocol StorageSink: class {
 public protocol Cursor {
     var data: Data { get set }
 }
+

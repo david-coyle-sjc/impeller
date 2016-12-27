@@ -32,6 +32,7 @@ public class MemoryStorage: Storage, Exchangable {
     private var valueTreesByKey = [String:ValueTree]()
     private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storageType: "")
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
+    private var saveContext: Any?
     
     private class func key(for reference: ValueTreeReference) -> String {
         return "\(reference.storageType)/\(reference.uniqueIdentifier)"
@@ -189,7 +190,8 @@ public class MemoryStorage: Storage, Exchangable {
     }
     
     /// Resolves conflicts and saves, and sets the value on out to resolved value.
-    public func save<T:Storable>(_ value: inout T) {
+    public func save<T:Storable>(_ value: inout T, context: Any? = nil) {
+        saveContext = context
         identifiersOfUnchanged = Set<UniqueIdentifier>()
         currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
         storeValueAndDescendents(of: &value)
@@ -224,7 +226,7 @@ public class MemoryStorage: Storage, Exchangable {
         }
         else {
             // Conflict with store. Resolve.
-            resolvedValue = value.resolvedValue(forConflictWith: storeValue!)
+            resolvedValue = value.resolvedValue(forConflictWith: storeValue!, context: saveContext)
             resolvedVersion = max(value.metadata.version, storeValue!.metadata.version) + 1
         }
         
