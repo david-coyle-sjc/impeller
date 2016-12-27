@@ -33,7 +33,8 @@ public class MemoryStorage: Storage, Exchangable {
     private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storageType: "")
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
     private var saveContext: Any?
-    
+    private var saveTimestamp = Date.distantPast.timeIntervalSinceReferenceDate
+
     public init() {}
     
     private class func key(for reference: ValueTreeReference) -> String {
@@ -171,6 +172,7 @@ public class MemoryStorage: Storage, Exchangable {
         }
     }
     
+    // TODO: Need to determine here which children have been excluded, and explicitly delete them
     public func store<T:Storable>(_ values: inout [T], for key:String) {
         let references = values.map {
             ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storageType: T.storageType)
@@ -194,6 +196,7 @@ public class MemoryStorage: Storage, Exchangable {
     /// Resolves conflicts and saves, and sets the value on out to resolved value.
     public func save<T:Storable>(_ value: inout T, context: Any? = nil) {
         saveContext = context
+        saveTimestamp = Date.timeIntervalSinceReferenceDate
         identifiersOfUnchanged = Set<UniqueIdentifier>()
         currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
         storeValueAndDescendents(of: &value)
@@ -207,7 +210,7 @@ public class MemoryStorage: Storage, Exchangable {
         
         var resolvedValue:T
         var resolvedVersion:StorageVersion = 0
-        let resolvedTimestamp = Date.timeIntervalSinceReferenceDate
+        let resolvedTimestamp = saveTimestamp
         var changed = true
         
         if storeValue == nil {
