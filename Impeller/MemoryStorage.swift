@@ -285,8 +285,24 @@ public class MemoryStorage: Storage, Exchangable {
         completion(nil, valueTrees, TimestampCursor(timestamp: maximumTimestamp))
     }
     
-    public func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: CompletionHandler?) {
-        // TODO: Implement inserting of changes
+    public func assimilate(_ valueTrees: [ValueTree], completionHandler completion: CompletionHandler?) {
+        for newTree in valueTrees {
+            let reference = ValueTreeReference(uniqueIdentifier: newTree.metadata.uniqueIdentifier, storageType: newTree.storageType)
+            let key = MemoryStorage.key(for: reference)
+            var replaceExisting = false
+            var maxVersion = newTree.metadata.version
+            if let existingTree = valueTreesByKey[key] {
+                if existingTree.metadata.timestamp < newTree.metadata.timestamp {
+                    replaceExisting = true
+                    maxVersion = max(maxVersion, existingTree.metadata.version+1)
+                }
+            }
+            else {
+                replaceExisting = true
+            }
+            newTree.metadata.version = maxVersion
+            if replaceExisting { valueTreesByKey[key] = newTree }
+        }
     }
 }
 
