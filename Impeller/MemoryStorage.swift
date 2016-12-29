@@ -303,6 +303,7 @@ public class MemoryStorage: Storage, Exchangable {
             newTree.metadata.version = maxVersion
             if replaceExisting { valueTreesByKey[key] = newTree }
         }
+        completion?(nil)
     }
 }
 
