@@ -6,12 +6,17 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
+public protocol Cursor {
+    var data: Data { get set }
+}
+
+
 public protocol Exchangable: class {
     
     var uniqueIdentifier: UniqueIdentifier { get }
     
-    func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [ValueTree], Cursor)->Void)
-    func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: CompletionHandler?)
+    func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void)
+    func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler)
     
 }
 
@@ -32,7 +37,7 @@ public class Exchange {
         return cursorsByExchangableIdentifier[identifier]
     }
     
-    func save(_ cursor: Cursor, forExchangableIdentifiedBy identifier: UniqueIdentifier) {
+    func save(_ cursor: Cursor?, forExchangableIdentifiedBy identifier: UniqueIdentifier) {
         cursorsByExchangableIdentifier[identifier] = cursor
     }
     
@@ -62,7 +67,7 @@ public class Exchange {
                 let assimilateGroup = DispatchGroup()
                 
                 // Join groups for each other exchangable.
-                for e2 in exchangables {
+                for e2 in self.exchangables {
                     guard e1 !== e2 else { continue }
                     group.enter()
                     assimilateGroup.enter()
@@ -74,13 +79,13 @@ public class Exchange {
                     self.save(newCursor, forExchangableIdentifiedBy: uniqueIdentifier)
                 }
                 
-                for e2 in exchangables {
+                for e2 in self.exchangables {
                     guard e1 !== e2 else { continue }
                     e2.assimilate(dictionaries) {
                         error in
                         
-                        defer { assimilateGroup.leave() }
                         defer { group.leave() }
+                        defer { assimilateGroup.leave() }
 
                         guard returnError == nil else { return }
                         guard error == nil else { returnError = error; return }

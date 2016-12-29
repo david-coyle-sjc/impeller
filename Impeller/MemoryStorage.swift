@@ -27,7 +27,6 @@ fileprivate struct TimestampCursor: Cursor {
 
 
 public class MemoryStorage: Storage, Exchangable {
-    
     public var uniqueIdentifier: UniqueIdentifier = uuid()
     private var valueTreesByKey = [String:ValueTree]()
     private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storageType: "")
@@ -271,8 +270,8 @@ public class MemoryStorage: Storage, Exchangable {
         currentTreeReference = storedReference
     }
 
-    public func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: (Error?, [ValueTree], Cursor)->Void) {
-        let timestampCursor = cursor as! TimestampCursor?
+    public func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void) {
+        let timestampCursor = cursor as? TimestampCursor
         var maximumTimestamp = timestampCursor?.timestamp ?? Date.distantPast.timeIntervalSinceReferenceDate
         var valueTrees = [ValueTree]()
         for (_, valueTree) in valueTreesByKey {
@@ -285,7 +284,7 @@ public class MemoryStorage: Storage, Exchangable {
         completion(nil, valueTrees, TimestampCursor(timestamp: maximumTimestamp))
     }
     
-    public func assimilate(_ valueTrees: [ValueTree], completionHandler completion: CompletionHandler?) {
+    public func assimilate(_ valueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
         for newTree in valueTrees {
             let reference = ValueTreeReference(uniqueIdentifier: newTree.metadata.uniqueIdentifier, storageType: newTree.storageType)
             let key = MemoryStorage.key(for: reference)
@@ -303,7 +302,7 @@ public class MemoryStorage: Storage, Exchangable {
             newTree.metadata.version = maxVersion
             if replaceExisting { valueTreesByKey[key] = newTree }
         }
-        completion?(nil)
+        completion(nil)
     }
 }
 

@@ -33,9 +33,3 @@ public protocol StorageSink: class {
     func store<T:Storable>(_ values:inout [T], for key:String)
     
 }
-
-
-public protocol Cursor {
-    var data: Data { get set }
-}
-
