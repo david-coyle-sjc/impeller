@@ -82,6 +82,45 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		071B35C01E16EA3B00781F99 /* Value Trees */ = {
+			isa = PBXGroup;
+			children = (
+				07C769981E0469920063CB4A /* ValueTree.swift */,
+				071B35BC1E16952400781F99 /* Property.swift */,
+				071B35BE1E16E78300781F99 /* Primitive.swift */,
+				073CB7CC1E02F29200E567D7 /* ValueTreeBuilder.swift */,
+			);
+			name = "Value Trees";
+			sourceTree = "<group>";
+		};
+		071B35C11E16EA5600781F99 /* Storables */ = {
+			isa = PBXGroup;
+			children = (
+				0737AAFE1DF952A200ABBA90 /* Metadata.swift */,
+				0737AB021DF952CB00ABBA90 /* Storable.swift */,
+				077C8B5E1E01A80B0073B628 /* StorablePrimitive.swift */,
+			);
+			name = Storables;
+			sourceTree = "<group>";
+		};
+		071B35C21E16EA7C00781F99 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				0737AB001DF952C000ABBA90 /* Storage.swift */,
+				0737AB041DF9530C00ABBA90 /* MemoryStorage.swift */,
+				071B35AE1E15273E00781F99 /* CloudKitStorage.swift */,
+			);
+			name = Storage;
+			sourceTree = "<group>";
+		};
+		071B35C31E16EA8D00781F99 /* Exchange */ = {
+			isa = PBXGroup;
+			children = (
+				0707B4331DFDBA8E00FE8F40 /* Exchange.swift */,
+			);
+			name = Exchange;
+			sourceTree = "<group>";
+		};
 		0737AADA1DF9524D00ABBA90 = {
 			isa = PBXGroup;
 			children = (
@@ -105,17 +144,10 @@
 			children = (
 				0737AAE71DF9524D00ABBA90 /* Impeller.h */,
 				0737AB061DF9534300ABBA90 /* General.swift */,
-				0737AAFE1DF952A200ABBA90 /* Metadata.swift */,
-				0737AB021DF952CB00ABBA90 /* Storable.swift */,
-				077C8B5E1E01A80B0073B628 /* StorablePrimitive.swift */,
-				071B35BE1E16E78300781F99 /* Primitive.swift */,
-				07C769981E0469920063CB4A /* ValueTree.swift */,
-				071B35BC1E16952400781F99 /* Property.swift */,
-				073CB7CC1E02F29200E567D7 /* ValueTreeBuilder.swift */,
-				0737AB001DF952C000ABBA90 /* Storage.swift */,
-				0737AB041DF9530C00ABBA90 /* MemoryStorage.swift */,
-				071B35AE1E15273E00781F99 /* CloudKitStorage.swift */,
-				0707B4331DFDBA8E00FE8F40 /* Exchange.swift */,
+				071B35C11E16EA5600781F99 /* Storables */,
+				071B35C01E16EA3B00781F99 /* Value Trees */,
+				071B35C21E16EA7C00781F99 /* Storage */,
+				071B35C31E16EA8D00781F99 /* Exchange */,
 				0737AAE81DF9524D00ABBA90 /* Info.plist */,
 			);
 			path = Impeller;
