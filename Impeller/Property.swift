@@ -7,9 +7,9 @@
 //
 
 public enum Property: Equatable {
-    case primitive(AnyStorablePrimitive)
-    case optionalPrimitive(AnyStorablePrimitive?)
-    case primitives([AnyStorablePrimitive])
+    case primitive(Primitive)
+    case optionalPrimitive(Primitive?)
+    case primitives([Primitive])
     case valueTree(ValueTree)
     case optionalValueTree(ValueTree?)
     case valueTrees([ValueTree])
@@ -17,26 +17,51 @@ public enum Property: Equatable {
     case optionalValueTreeReference(ValueTreeReference?)
     case valueTreeReferences([ValueTreeReference])
     
-    init<T:StorablePrimitive>(type:Int16, value:T) {
+    init?(type:Int16, value:Any) {
         switch type {
         case 10:
-            self = .primitive(AnyStorablePrimitive(value))
-        case .optionalPrimitive:
-            return 20
-        case .primitives:
-            return 30
-        case .valueTree:
-            return 40
-        case .optionalValueTree:
-            return 50
-        case .valueTrees:
-            return 60
-        case .valueTreeReference:
-            return 70
-        case .optionalValueTreeReference:
-            return 80
-        case .valueTreeReferences:
-            return 90
+            guard let v = value as? Primitive else { return nil }
+            self = .primitive(v)
+        case 40:
+            guard let v = value as? ValueTree else { return nil }
+            self = .valueTree(v)
+        case 70:
+            guard let v = value as? ValueTreeReference else { return nil }
+            self = .valueTreeReference(v)
+        default:
+            return nil
+        }
+    }
+    
+    init?(type:Int16, value:Any?) {
+        switch type {
+        case 20:
+            guard let v = value as? Primitive? else { return nil }
+            self = .optionalPrimitive(v)
+        case 50:
+            guard let v = value as? ValueTree? else { return nil }
+            self = .optionalValueTree(v)
+        case 80:
+            guard let v = value as? ValueTreeReference? else { return nil }
+            self = .optionalValueTreeReference(v)
+        default:
+            return nil
+        }
+    }
+    
+    init?(type:Int16, value:[Any]) {
+        switch type {
+        case 30:
+            guard let v = value as? [Primitive] else { return nil }
+            self = .primitives(v)
+        case 60:
+            guard let v = value as? [ValueTree] else { return nil }
+            self = .valueTrees(v)
+        case 90:
+            guard let v = value as? [ValueTreeReference] else { return nil }
+            self = .valueTreeReferences(v)
+        default:
+            return nil
         }
     }
     
@@ -63,7 +88,7 @@ public enum Property: Equatable {
         }
     }
     
-    public var isOptionalType: Bool {
+    public var isOptional: Bool {
         switch self {
         case .primitive:
             return false
@@ -86,7 +111,7 @@ public enum Property: Equatable {
         }
     }
     
-    public func asPrimitive() -> AnyStorablePrimitive? {
+    public func asPrimitive() -> Primitive? {
         switch self {
         case .primitive(let v):
             return v
@@ -95,7 +120,7 @@ public enum Property: Equatable {
         }
     }
     
-    public func asOptionalPrimitive() -> AnyStorablePrimitive?? {
+    public func asOptionalPrimitive() -> Primitive?? {
         switch self {
         case .optionalPrimitive(let v):
             return v
@@ -104,7 +129,7 @@ public enum Property: Equatable {
         }
     }
     
-    public func asPrimitives() -> [AnyStorablePrimitive]? {
+    public func asPrimitives() -> [Primitive]? {
         switch self {
         case .primitives(let v):
             return v

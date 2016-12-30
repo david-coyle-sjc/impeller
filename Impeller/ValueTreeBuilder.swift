@@ -21,18 +21,18 @@ final class ValueTreeBuilder<T:Storable> : StorageSink {
     }
     
     func store<T:StorablePrimitive>(_ value:T, for key:String) {
-        let storable = AnyStorablePrimitive(value)
-        valueTree.set(key, to: .primitive(storable))
+        let primitive = Primitive(value: value)
+        valueTree.set(key, to: .primitive(primitive!))
     }
     
     func store<T:StorablePrimitive>(_ value:T?, for key:String) {
-        let storable = value != nil ? AnyStorablePrimitive(value!) : nil
-        valueTree.set(key, to: .optionalPrimitive(storable))
+        let primitive = value != nil ? Primitive(value: value!) : nil
+        valueTree.set(key, to: .optionalPrimitive(primitive))
     }
     
     func store<T:StorablePrimitive>(_ values:[T], for key:String) {
-        let storables = values.map { AnyStorablePrimitive($0) }
-        valueTree.set(key, to: .primitives(storables))
+        let primitives = values.map { Primitive(value: $0)! }
+        valueTree.set(key, to: .primitives(primitives))
     }
     
     func store<T:Storable>(_ value:inout T, for key:String) {

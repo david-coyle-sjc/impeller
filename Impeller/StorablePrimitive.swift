@@ -6,59 +6,83 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-
-public protocol StorablePrimitive: Equatable {
-    init?(withStorableValue value: Any)
-    var storableValue: Any { get }
+public protocol StorablePrimitive {
+    init?(_ primitive: Primitive)
+    var primitive: Primitive { get }
 }
 
-
-public extension StorablePrimitive {
-    init?(withStorableValue value: Any) {
-        if let value = value as? Self {
-            self = value
+extension String: StorablePrimitive {
+    public init?(_ primitive: Primitive) {
+        switch primitive {
+        case .string(let s):
+            self = s
+        default:
+            return nil
         }
-        else {
+    }
+
+    public var primitive: Primitive {
+        return .string(self)
+    }
+}
+
+extension Int: StorablePrimitive {
+    public init?(_ primitive: Primitive) {
+        switch primitive {
+        case .int(let i):
+            self = i
+        default:
             return nil
         }
     }
     
-    var storableValue: Any {
-        return self
+    public var primitive: Primitive {
+        return .int(self)
     }
 }
 
-
-extension String: StorablePrimitive {}
-extension Int: StorablePrimitive {}
-extension Int64: StorablePrimitive {}
-extension Int32: StorablePrimitive {}
-extension Int16: StorablePrimitive {}
-extension UInt: StorablePrimitive {}
-extension UInt64: StorablePrimitive {}
-extension UInt32: StorablePrimitive {}
-extension UInt16: StorablePrimitive {}
-extension Float: StorablePrimitive {}
-extension Double: StorablePrimitive {}
-extension Data: StorablePrimitive {}
-
-
-public struct AnyStorablePrimitive: StorablePrimitive {
-    fileprivate let value: Any
-    fileprivate let capturedEquals: (Any) -> Bool
-    fileprivate let capturedStorableValue: () -> Any
-    
-    init<S: StorablePrimitive>(_ value: S) {
-        self.value = value
-        self.capturedEquals = { (($0 as? S) == value) }
-        self.capturedStorableValue = { value.storableValue }
+extension Float: StorablePrimitive {
+    public init?(_ primitive: Primitive) {
+        switch primitive {
+        case .float(let f):
+            self = f
+        default:
+            return nil
+        }
     }
     
-    public var storableValue: Any {
-        return self.capturedStorableValue()
+    public var primitive: Primitive {
+        return .float(self)
     }
 }
 
-public func ==(left: AnyStorablePrimitive, right: AnyStorablePrimitive) -> Bool {
-    return left.capturedEquals(right.value)
+extension Bool: StorablePrimitive {
+    public init?(_ primitive: Primitive) {
+        switch primitive {
+        case .bool(let b):
+            self = b
+        default:
+            return nil
+        }
+    }
+    
+    public var primitive: Primitive {
+        return .bool(self)
+    }
 }
+
+extension Data: StorablePrimitive {
+    public init?(_ primitive: Primitive) {
+        switch primitive {
+        case .data(let d):
+            self = d
+        default:
+            return nil
+        }
+    }
+    
+    public var primitive: Primitive {
+        return .data(self)
+    }
+}
+

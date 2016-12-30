@@ -54,8 +54,8 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func value<T:StorablePrimitive>(for key:String) -> T? {
         if  let property = currentTreeProperty(key),
-            let value = property.asPrimitive()?.storableValue {
-            return T(withStorableValue: value)
+            let primitive = property.asPrimitive() {
+            return T(primitive)
         }
         else {
             return nil
@@ -64,9 +64,9 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func optionalValue<T:StorablePrimitive>(for key:String) -> T?? {
         if  let property = currentTreeProperty(key),
-            let optionalValue = property.asOptionalPrimitive() {
-            if let value = optionalValue?.storableValue {
-                return T(withStorableValue: value)
+            let optionalPrimitive = property.asOptionalPrimitive() {
+            if let primitive = optionalPrimitive {
+                return T(primitive)
             }
             else {
                 return nil as T?
@@ -79,8 +79,8 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func values<T:StorablePrimitive>(for key:String) -> [T]? {
         if  let property = currentTreeProperty(key),
-            let array = property.asPrimitives() {
-            return array.flatMap { T(withStorableValue: $0.storableValue) }
+            let primitives = property.asPrimitives() {
+            return primitives.flatMap { T($0) }
         }
         else {
             return nil
@@ -120,21 +120,22 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func store<T:StorablePrimitive>(_ value:T, for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
-        let property: Property = .primitive(AnyStorablePrimitive(value))
+        let primitive = Primitive(value: value)
+        let property: Property = .primitive(primitive!)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
     public func store<T:StorablePrimitive>(_ value:T?, for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
-        let optionalStorable = value != nil ? AnyStorablePrimitive(value!) : nil
-        let property: Property = .optionalPrimitive(optionalStorable)
+        let primitive = value != nil ? Primitive(value: value!) : nil
+        let property: Property = .optionalPrimitive(primitive)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
     public func store<T:StorablePrimitive>(_ values:[T], for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
-        let storables = values.map { AnyStorablePrimitive($0) }
-        let property: Property = .primitives(storables)
+        let primitives = values.map { Primitive(value: $0)! }
+        let property: Property = .primitives(primitives)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
