@@ -48,7 +48,7 @@ public class MemoryStorage: Storage, Exchangable {
         return valueTreesByKey[currentValueTreeKey]
     }
     
-    private func currentTreeProperty(_ key: String) -> ValueTree.Property? {
+    private func currentTreeProperty(_ key: String) -> Property? {
         return valueTreesByKey[currentValueTreeKey]?.get(key)
     }
     
@@ -120,27 +120,27 @@ public class MemoryStorage: Storage, Exchangable {
     
     public func store<T:StorablePrimitive>(_ value:T, for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
-        let property: ValueTree.Property = .primitive(AnyStorablePrimitive(value))
+        let property: Property = .primitive(AnyStorablePrimitive(value))
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
     public func store<T:StorablePrimitive>(_ value:T?, for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
         let optionalStorable = value != nil ? AnyStorablePrimitive(value!) : nil
-        let property: ValueTree.Property = .optionalPrimitive(optionalStorable)
+        let property: Property = .optionalPrimitive(optionalStorable)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
     public func store<T:StorablePrimitive>(_ values:[T], for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
         let storables = values.map { AnyStorablePrimitive($0) }
-        let property: ValueTree.Property = .primitives(storables)
+        let property: Property = .primitives(storables)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
     public func store<T:Storable>(_ value: inout T, for key:String) {
         let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
-        let property: ValueTree.Property = .valueTreeReference(reference)
+        let property: Property = .valueTreeReference(reference)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
 
         // Recurse to store the value's data
@@ -158,7 +158,7 @@ public class MemoryStorage: Storage, Exchangable {
             reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
         }
         
-        let property: ValueTree.Property = .optionalValueTreeReference(reference)
+        let property: Property = .optionalValueTreeReference(reference)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
         
         // Recurse to store the value's data
@@ -177,7 +177,7 @@ public class MemoryStorage: Storage, Exchangable {
             ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storageType: T.storageType)
         }
         
-        let property: ValueTree.Property = .valueTreeReferences(references)
+        let property: Property = .valueTreeReferences(references)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
         
         // Recurse to store the value's data

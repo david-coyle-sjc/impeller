@@ -79,17 +79,22 @@ class CloudKitStorage : Exchangable {
 extension CKRecord {
     
     var asValueTree: ValueTree? {
-        if  let metadata = self["metadata"] as? [String:Any],
-            let uniqueIdentifier = metadata["uniqueIdentifier"] as? UniqueIdentifier,
-            let timestamp = metadata["timestamp"] as? TimeInterval,
-            let version = metadata["version"] as? StorageVersion,
-            let properties = self["properties"] as? [String:Any] {
-            
+        if  let timestamp = self["metadata.timestamp"] as? TimeInterval,
+            let version = self["metadata.version"] as? StorageVersion {
+            let uniqueIdentifier = recordID.recordName
             var metadata = Metadata(uniqueIdentifier: uniqueIdentifier)
             metadata.version = version
             metadata.timestamp = timestamp
             
             var valueTree = ValueTree(storageType: self.recordType, metadata: metadata)
+            for key in allKeys() {
+                if key.contains(".metadata.") { continue }
+                
+                let typeKey = key + ".metadata.type"
+                guard let typeInt = self[typeKey] as? Int16 else {
+                    continue
+                }
+            }
             
             return valueTree
         }

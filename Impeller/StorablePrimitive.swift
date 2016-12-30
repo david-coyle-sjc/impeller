@@ -6,6 +6,7 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
+
 public protocol StorablePrimitive: Equatable {
     init?(withStorableValue value: Any)
     var storableValue: Any { get }

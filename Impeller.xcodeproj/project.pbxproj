@@ -11,6 +11,7 @@
 		0707B4321DF9DE0F00FE8F40 /* Child.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0707B4311DF9DE0F00FE8F40 /* Child.swift */; };
 		0707B4341DFDBA8E00FE8F40 /* Exchange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0707B4331DFDBA8E00FE8F40 /* Exchange.swift */; };
 		071B35AF1E15273E00781F99 /* CloudKitStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071B35AE1E15273E00781F99 /* CloudKitStorage.swift */; };
+		071B35BD1E16952400781F99 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071B35BC1E16952400781F99 /* Property.swift */; };
 		072576241E128F680086D1D5 /* ExchangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072576231E128F680086D1D5 /* ExchangeTests.swift */; };
 		0737AAEE1DF9524E00ABBA90 /* Impeller.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0737AAE41DF9524D00ABBA90 /* Impeller.framework */; };
 		0737AAF31DF9524E00ABBA90 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AAF21DF9524E00ABBA90 /* BasicTests.swift */; };
@@ -41,6 +42,7 @@
 		0707B4311DF9DE0F00FE8F40 /* Child.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Child.swift; sourceTree = "<group>"; };
 		0707B4331DFDBA8E00FE8F40 /* Exchange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exchange.swift; sourceTree = "<group>"; };
 		071B35AE1E15273E00781F99 /* CloudKitStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitStorage.swift; sourceTree = "<group>"; };
+		071B35BC1E16952400781F99 /* Property.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
 		072576231E128F680086D1D5 /* ExchangeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeTests.swift; sourceTree = "<group>"; };
 		0737AAE41DF9524D00ABBA90 /* Impeller.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Impeller.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0737AAE71DF9524D00ABBA90 /* Impeller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Impeller.h; sourceTree = "<group>"; };
@@ -105,6 +107,7 @@
 				0737AB021DF952CB00ABBA90 /* Storable.swift */,
 				077C8B5E1E01A80B0073B628 /* StorablePrimitive.swift */,
 				07C769981E0469920063CB4A /* ValueTree.swift */,
+				071B35BC1E16952400781F99 /* Property.swift */,
 				073CB7CC1E02F29200E567D7 /* ValueTreeBuilder.swift */,
 				0737AB001DF952C000ABBA90 /* Storage.swift */,
 				0737AB041DF9530C00ABBA90 /* MemoryStorage.swift */,
@@ -243,6 +246,7 @@
 			files = (
 				0737AB031DF952CB00ABBA90 /* Storable.swift in Sources */,
 				0737AAFF1DF952A200ABBA90 /* Metadata.swift in Sources */,
+				071B35BD1E16952400781F99 /* Property.swift in Sources */,
 				0707B4341DFDBA8E00FE8F40 /* Exchange.swift in Sources */,
 				071B35AF1E15273E00781F99 /* CloudKitStorage.swift in Sources */,
 				0737AB051DF9530C00ABBA90 /* MemoryStorage.swift in Sources */,
