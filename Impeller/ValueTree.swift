@@ -34,21 +34,7 @@ public final class ValueTree: Equatable, Hashable {
     public init(deepCopying other:ValueTree) {
         metadata = other.metadata
         storageType = other.storageType
-        
-        var newPropertiesByKey = [String:Property]()
-        for (key, value) in other.propertiesByKey {
-            switch value {
-            case .valueTree(let tree):
-                newPropertiesByKey[key] = .valueTree(ValueTree(deepCopying:tree))
-            case .valueTrees(let trees):
-                newPropertiesByKey[key] = .valueTrees(trees.map { ValueTree(deepCopying:$0) })
-            case .optionalValueTree(let tree):
-                newPropertiesByKey[key] = .optionalValueTree(tree == nil ? nil : ValueTree(deepCopying:tree!))
-            default:
-                newPropertiesByKey[key] = value
-            }
-        }
-        propertiesByKey = newPropertiesByKey
+        propertiesByKey = other.propertiesByKey
     }
     
     public func get(_ key: String) -> Property? {
@@ -64,9 +50,7 @@ public final class ValueTree: Equatable, Hashable {
     }
     
     public static func ==(left: ValueTree, right: ValueTree) -> Bool {
-        let l = left.propertiesByKey.mapValues { $0.referenceTransformed() }
-        let r = right.propertiesByKey.mapValues { $0.referenceTransformed() }
-        return l == r && left.metadata == right.metadata && left.storageType == right.storageType
+        return left.propertiesByKey == right.propertiesByKey && left.metadata == right.metadata && left.storageType == right.storageType
     }
     
 }

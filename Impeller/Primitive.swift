@@ -6,7 +6,14 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-public typealias PrimitiveType = Int
+public enum PrimitiveType : Int {
+    case string = 10
+    case int = 20
+    case float = 30
+    case bool = 40
+    case data = 50
+}
+
 
 public enum Primitive : Equatable {
     case string(String)
@@ -34,38 +41,36 @@ public enum Primitive : Equatable {
     
     public init?(type: PrimitiveType, value: Any) {
         switch type {
-        case 10:
+        case .string:
             guard let value = value as? String else { return nil }
             self = .string(value)
-        case 20:
+        case .int:
             guard let value = value as? Int else { return nil }
             self = .int(value)
-        case 30:
+        case .float:
             guard let value = value as? Float else { return nil }
             self = .float(value)
-        case 40:
+        case .bool:
             guard let value = value as? Bool else { return nil }
             self = .bool(value)
-        case 50:
+        case .data:
             guard let value = value as? Data else { return nil }
             self = .data(value)
-        default:
-            return nil
         }
     }
     
     public var type: PrimitiveType {
         switch self {
         case .string:
-            return 10
+            return .string
         case .int:
-            return 20
+            return .int
         case .float:
-            return 30
+            return .float
         case .bool:
-            return 30
+            return .bool
         case .data:
-            return 30
+            return .data
         }
     }
     
