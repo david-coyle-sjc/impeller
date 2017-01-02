@@ -78,15 +78,56 @@ class CloudKitStorage: Exchangable {
 
 extension ValueTree {
     
-    func makeRecord(in zone:CKRecordZone) -> CKRecord {
+    func makeRecord(inZoneWithID zoneID:CKRecordZoneID) -> CKRecord {
         let recordName = "\(storageType)__\(metadata.uniqueIdentifier)"
-        let recordID = CKRecordID(recordName: recordName, zoneID: zone.zoneID)
+        let recordID = CKRecordID(recordName: recordName, zoneID: zoneID)
         let newRecord = CKRecord(recordType: storageType, recordID: recordID)
         updateRecord(newRecord)
         return newRecord
     }
     
     func updateRecord(_ record: CKRecord) {
+        record["metadata.timestamp"] = metadata.timestamp as CKRecordValue
+        record["metadata.version"] = metadata.version as CKRecordValue
+        for name in propertyNames {
+            let property = get(name)!
+            
+            let propertyTypeKey = name + ".metadata.propertyType"
+            record[propertyTypeKey] = property.propertyType.rawValue as CKRecordValue
+            
+            switch property {
+            case .primitive(let primitive):
+                let typeKey = name + ".metadata.primitiveType"
+                record[typeKey] = primitive.type.rawValue as CKRecordValue
+                record[name] = primitive.value as? CKRecordValue
+            case .optionalPrimitive(let primitive):
+                let typeKey = name + ".metadata.primitiveType"
+                if let primitive = primitive {
+                    record[typeKey] = primitive.type.rawValue as CKRecordValue
+                    record[name] = primitive.value as? CKRecordValue
+                }
+                else {
+                    record[typeKey] = 0 as CKRecordValue
+                    record[name] = nil
+                }
+            case .primitives(let primitives):
+                let typeKey = name + ".metadata.primitiveType"
+                if primitives.count > 0 {
+                    record[typeKey] = primitives.first!.type.rawValue as CKRecordValue
+                    record[name] = primitives.map { $0.value } as CKRecordValue
+                }
+                else {
+                    record[typeKey] = 0 as CKRecordValue
+                    record[name] = [] as CKRecordValue
+                }
+            case .valueTreeReference:
+                break
+            case .optionalValueTreeReference:
+                break
+            case .valueTreeReferences:
+                break
+            }
+        }
     }
     
 }
@@ -123,11 +164,8 @@ extension CKRecord {
             }
             
             let primitiveTypeKey = key + ".metadata.primitiveType"
-            let typeInt = self[primitiveTypeKey] as? Int
-            let primitiveType = typeInt != nil ? PrimitiveType(rawValue: typeInt!) : nil
-            guard !propertyType.isPrimitive || primitiveType != nil else {
-                continue
-            }
+            let primitiveTypeInt = self[primitiveTypeKey] as? Int
+            let primitiveType = primitiveTypeInt != nil ? PrimitiveType(rawValue: primitiveTypeInt!) : nil
             
             var property: Property?
             switch propertyType {
@@ -150,7 +188,7 @@ extension CKRecord {
                     property = .primitive(.data(s))
                 }
             case .optionalPrimitive:
-                let isNull = (value as? String) == "<<<NULL>>>"
+                let isNull = primitiveTypeInt == 0
                 if isNull {
                     property = .optionalPrimitive(nil)
                 }
@@ -174,29 +212,35 @@ extension CKRecord {
                     }
                 }
             case .primitives:
-                switch primitiveType! {
-                case .string:
-                    guard let v = value as? [String] else { continue }
-                    property = .primitives(v.map { .string($0) })
-                case .int:
-                    guard let v = value as? [Int] else { continue }
-                    property = .primitives(v.map { .int($0) })
-                case .float:
-                    guard let v = value as? [Float] else { continue }
-                    property = .primitives(v.map { .float($0) })
-                case .bool:
-                    guard let v = value as? [Bool] else { continue }
-                    property = .primitives(v.map { .bool($0) })
-                case .data:
-                    guard let v = value as? [Data] else { continue }
-                    property = .primitives(v.map { .data($0) })
+                let isEmpty = primitiveTypeInt == 0
+                if isEmpty {
+                    property = .primitives([])
+                }
+                else {
+                    switch primitiveType! {
+                    case .string:
+                        guard let v = value as? [String] else { continue }
+                        property = .primitives(v.map { .string($0) })
+                    case .int:
+                        guard let v = value as? [Int] else { continue }
+                        property = .primitives(v.map { .int($0) })
+                    case .float:
+                        guard let v = value as? [Float] else { continue }
+                        property = .primitives(v.map { .float($0) })
+                    case .bool:
+                        guard let v = value as? [Bool] else { continue }
+                        property = .primitives(v.map { .bool($0) })
+                    case .data:
+                        guard let v = value as? [Data] else { continue }
+                        property = .primitives(v.map { .data($0) })
+                    }
                 }
             case .valueTreeReference:
                 guard let v = value as? [String], v.count == 2 else { continue }
                 let ref = ValueTreeReference(uniqueIdentifier: v[1], storageType: v[0])
                 property = .valueTreeReference(ref)
             case .optionalValueTreeReference:
-                let isNull = (value as? String) == "<<<NULL>>>"
+                let isNull = primitiveTypeInt == 0
                 if isNull {
                     property = .optionalValueTreeReference(nil)
                 }

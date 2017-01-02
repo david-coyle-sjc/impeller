@@ -74,6 +74,21 @@ public enum Primitive : Equatable {
         }
     }
     
+    public var value: Any {
+        switch self {
+        case .string(let v):
+            return v
+        case .int(let v):
+            return v
+        case .float(let v):
+            return v
+        case .bool(let v):
+            return v
+        case .data(let v):
+            return v
+        }
+    }
+    
     public static func ==(left: Primitive, right: Primitive) -> Bool {
         switch (left, right) {
         case let (.int(l), .int(r)):

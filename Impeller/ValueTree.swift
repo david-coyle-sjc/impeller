@@ -20,10 +20,14 @@ public final class ValueTree: Equatable, Hashable {
     public var metadata: Metadata
     public var storageType: StorageType
     
-    private var propertiesByKey = [String:Property]()
+    private var propertiesByName = [String:Property]()
     
     public var valueTreeReference: ValueTreeReference {
         return ValueTreeReference(uniqueIdentifier: metadata.uniqueIdentifier, storageType: storageType)
+    }
+    
+    public var propertyNames: [String] {
+        return Array(propertiesByName.keys)
     }
 
     public init(storageType: StorageType, metadata: Metadata) {
@@ -34,15 +38,15 @@ public final class ValueTree: Equatable, Hashable {
     public init(deepCopying other:ValueTree) {
         metadata = other.metadata
         storageType = other.storageType
-        propertiesByKey = other.propertiesByKey
+        propertiesByName = other.propertiesByName
     }
     
-    public func get(_ key: String) -> Property? {
-        return propertiesByKey[key]
+    public func get(_ propertyName: String) -> Property? {
+        return propertiesByName[propertyName]
     }
     
-    public func set(_ key: String, to property: Property) {
-        propertiesByKey[key] = property
+    public func set(_ propertyName: String, to property: Property) {
+        propertiesByName[propertyName] = property
     }
     
     public var hashValue: Int {
@@ -50,7 +54,7 @@ public final class ValueTree: Equatable, Hashable {
     }
     
     public static func ==(left: ValueTree, right: ValueTree) -> Bool {
-        return left.propertiesByKey == right.propertiesByKey && left.metadata == right.metadata && left.storageType == right.storageType
+        return left.propertiesByName == right.propertiesByName && left.metadata == right.metadata && left.storageType == right.storageType
     }
     
 }
