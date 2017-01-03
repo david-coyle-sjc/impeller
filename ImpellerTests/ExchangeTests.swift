@@ -11,22 +11,22 @@ import XCTest
 
 class ExchangeTests: XCTestCase {
     
-    var storage1: MemoryStorage!
-    var storage2: MemoryStorage!
+    var repository1: MemoryRepository!
+    var repository2: MemoryRepository!
     var exchange: Exchange!
 
     override func setUp() {
         super.setUp()
-        storage1 = MemoryStorage()
-        storage2 = MemoryStorage()
-        exchange = Exchange(coupling: [storage1, storage2], pathForSavedState: nil)
+        repository1 = MemoryRepository()
+        repository2 = MemoryRepository()
+        exchange = Exchange(coupling: [repository1, repository2], pathForSavedState: nil)
     }
     
     func testOneWayExchange() {
         var person = Person()
         person.name = "Bob"
         person.age = 10
-        storage1.save(&person)
+        repository1.save(&person)
 
         let expectation = self.expectation(description: "exchange")
         exchange.exchange { error in
@@ -35,16 +35,16 @@ class ExchangeTests: XCTestCase {
         
         self.waitForExpectations(timeout: 0.5)
         
-        let personInStorage2:Person = storage2.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)!
-        XCTAssertEqual(personInStorage2.metadata, person.metadata)
-        XCTAssertEqual(personInStorage2.name, person.name)
+        let personInRepository2:Person = repository2.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)!
+        XCTAssertEqual(personInRepository2.metadata, person.metadata)
+        XCTAssertEqual(personInRepository2.name, person.name)
     }
     
     func testTwoWayExchange() {
-        var personInStorage1 = Person()
-        personInStorage1.name = "Bob"
-        personInStorage1.age = 10
-        storage1.save(&personInStorage1)
+        var personInRepository1 = Person()
+        personInRepository1.name = "Bob"
+        personInRepository1.age = 10
+        repository1.save(&personInRepository1)
         
         let expectation1 = self.expectation(description: "exchange1")
         exchange.exchange { error in
@@ -53,9 +53,9 @@ class ExchangeTests: XCTestCase {
         
         self.waitForExpectations(timeout: 0.5)
         
-        var personInStorage2:Person = storage2.fetchValue(identifiedBy: personInStorage1.metadata.uniqueIdentifier)!
-        personInStorage2.name = "Tom"
-        storage2.save(&personInStorage2)
+        var personInRepository2:Person = repository2.fetchValue(identifiedBy: personInRepository1.metadata.uniqueIdentifier)!
+        personInRepository2.name = "Tom"
+        repository2.save(&personInRepository2)
         
         let expectation2 = self.expectation(description: "exchange2")
         exchange.exchange { error in
@@ -64,22 +64,22 @@ class ExchangeTests: XCTestCase {
         
         self.waitForExpectations(timeout: 0.5)
         
-        personInStorage1 = storage1.fetchValue(identifiedBy: personInStorage1.metadata.uniqueIdentifier)!
-        XCTAssertEqual(personInStorage1.metadata, personInStorage2.metadata)
-        XCTAssertEqual(personInStorage2.name, "Tom")
-        XCTAssertEqual(personInStorage1.name, "Tom")
+        personInRepository1 = repository1.fetchValue(identifiedBy: personInRepository1.metadata.uniqueIdentifier)!
+        XCTAssertEqual(personInRepository1.metadata, personInRepository2.metadata)
+        XCTAssertEqual(personInRepository2.name, "Tom")
+        XCTAssertEqual(personInRepository1.name, "Tom")
     }
     
     func testSimultaneousChangesExchange() {
-        var personInStorage1 = Person()
-        personInStorage1.name = "Bob"
-        personInStorage1.age = 10
-        storage1.save(&personInStorage1)
+        var personInRepository1 = Person()
+        personInRepository1.name = "Bob"
+        personInRepository1.age = 10
+        repository1.save(&personInRepository1)
         
-        var personInStorage2 = Person()
-        personInStorage2.name = "Tom"
-        personInStorage2.age = 20
-        storage2.save(&personInStorage2)
+        var personInRepository2 = Person()
+        personInRepository2.name = "Tom"
+        personInRepository2.age = 20
+        repository2.save(&personInRepository2)
         
         let expectation = self.expectation(description: "exchange")
         exchange.exchange { error in
@@ -88,35 +88,35 @@ class ExchangeTests: XCTestCase {
         
         self.waitForExpectations(timeout: 0.5)
         
-        let idOfBob = personInStorage1.metadata.uniqueIdentifier
-        let idOfTom = personInStorage2.metadata.uniqueIdentifier
-        personInStorage1 = storage1.fetchValue(identifiedBy: idOfTom)!
-        personInStorage2 = storage2.fetchValue(identifiedBy: idOfTom)!
+        let idOfBob = personInRepository1.metadata.uniqueIdentifier
+        let idOfTom = personInRepository2.metadata.uniqueIdentifier
+        personInRepository1 = repository1.fetchValue(identifiedBy: idOfTom)!
+        personInRepository2 = repository2.fetchValue(identifiedBy: idOfTom)!
         
-        XCTAssertEqual(personInStorage1.metadata, personInStorage2.metadata)
-        XCTAssertEqual(personInStorage2.name, "Tom")
-        XCTAssertEqual(personInStorage1.name, "Tom")
+        XCTAssertEqual(personInRepository1.metadata, personInRepository2.metadata)
+        XCTAssertEqual(personInRepository2.name, "Tom")
+        XCTAssertEqual(personInRepository1.name, "Tom")
         
-        personInStorage1 = storage1.fetchValue(identifiedBy: idOfBob)!
-        personInStorage2 = storage2.fetchValue(identifiedBy: idOfBob)!
+        personInRepository1 = repository1.fetchValue(identifiedBy: idOfBob)!
+        personInRepository2 = repository2.fetchValue(identifiedBy: idOfBob)!
         
-        XCTAssertEqual(personInStorage1.metadata, personInStorage2.metadata)
-        XCTAssertEqual(personInStorage2.name, "Bob")
-        XCTAssertEqual(personInStorage1.name, "Bob")
+        XCTAssertEqual(personInRepository1.metadata, personInRepository2.metadata)
+        XCTAssertEqual(personInRepository2.name, "Bob")
+        XCTAssertEqual(personInRepository1.name, "Bob")
     }
     
     func testConflictingChangesExchange() {
-        var personInStorage1 = Person()
-        personInStorage1.name = "Bob"
-        personInStorage1.age = 10
-        storage1.save(&personInStorage1)
+        var personInRepository1 = Person()
+        personInRepository1.name = "Bob"
+        personInRepository1.age = 10
+        repository1.save(&personInRepository1)
         
-        var personInStorage2 = Person()
-        let newMetadata = Metadata(uniqueIdentifier: personInStorage1.metadata.uniqueIdentifier)
-        personInStorage2.metadata = newMetadata
-        personInStorage2.name = "Tom"
-        personInStorage2.age = 20
-        storage2.save(&personInStorage2)
+        var personInRepository2 = Person()
+        let newMetadata = Metadata(uniqueIdentifier: personInRepository1.metadata.uniqueIdentifier)
+        personInRepository2.metadata = newMetadata
+        personInRepository2.name = "Tom"
+        personInRepository2.age = 20
+        repository2.save(&personInRepository2)
         
         let expectation = self.expectation(description: "exchange")
         exchange.exchange { error in
@@ -125,25 +125,25 @@ class ExchangeTests: XCTestCase {
         
         self.waitForExpectations(timeout: 0.5)
         
-        let id = personInStorage2.metadata.uniqueIdentifier
-        personInStorage1 = storage1.fetchValue(identifiedBy: id)!
-        personInStorage2 = storage2.fetchValue(identifiedBy: id)!
+        let id = personInRepository2.metadata.uniqueIdentifier
+        personInRepository1 = repository1.fetchValue(identifiedBy: id)!
+        personInRepository2 = repository2.fetchValue(identifiedBy: id)!
         
-        XCTAssertEqual(personInStorage1.metadata.uniqueIdentifier, id)
-        XCTAssertEqual(personInStorage2.metadata.uniqueIdentifier, id)
-        XCTAssertEqual(personInStorage1.metadata, personInStorage2.metadata)
-        XCTAssertEqual(personInStorage2.name, "Tom")
-        XCTAssertEqual(personInStorage1.name, "Tom")
+        XCTAssertEqual(personInRepository1.metadata.uniqueIdentifier, id)
+        XCTAssertEqual(personInRepository2.metadata.uniqueIdentifier, id)
+        XCTAssertEqual(personInRepository1.metadata, personInRepository2.metadata)
+        XCTAssertEqual(personInRepository2.name, "Tom")
+        XCTAssertEqual(personInRepository1.name, "Tom")
     }
     
     func testCursorsUpdate() {
-        var personInStorage1 = Person()
-        personInStorage1.name = "Bob"
-        personInStorage1.age = 10
-        storage1.save(&personInStorage1)
+        var personInRepository1 = Person()
+        personInRepository1.name = "Bob"
+        personInRepository1.age = 10
+        repository1.save(&personInRepository1)
         
-        XCTAssertNil(exchange.cursor(forExchangableIdentifiedBy: storage1.uniqueIdentifier))
-        XCTAssertNil(exchange.cursor(forExchangableIdentifiedBy: storage2.uniqueIdentifier))
+        XCTAssertNil(exchange.cursor(forExchangableIdentifiedBy: repository1.uniqueIdentifier))
+        XCTAssertNil(exchange.cursor(forExchangableIdentifiedBy: repository2.uniqueIdentifier))
 
         let expectation = self.expectation(description: "exchange")
         exchange.exchange { error in
@@ -152,7 +152,7 @@ class ExchangeTests: XCTestCase {
         
         self.waitForExpectations(timeout: 0.5)
         
-        XCTAssertNotNil(exchange.cursor(forExchangableIdentifiedBy: storage1.uniqueIdentifier))
-        XCTAssertNotNil(exchange.cursor(forExchangableIdentifiedBy: storage2.uniqueIdentifier))
+        XCTAssertNotNil(exchange.cursor(forExchangableIdentifiedBy: repository1.uniqueIdentifier))
+        XCTAssertNotNil(exchange.cursor(forExchangableIdentifiedBy: repository2.uniqueIdentifier))
     }
 }

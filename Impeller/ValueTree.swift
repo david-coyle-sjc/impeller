@@ -8,36 +8,36 @@
 
 public struct ValueTreeReference: Equatable {
     let uniqueIdentifier: UniqueIdentifier
-    let storageType: StorageType
+    let storedType: StoredType
     
     public static func ==(left: ValueTreeReference, right: ValueTreeReference) -> Bool {
-        return left.uniqueIdentifier == right.uniqueIdentifier && left.storageType == right.storageType
+        return left.uniqueIdentifier == right.uniqueIdentifier && left.storedType == right.storedType
     }
 }
 
 
 public final class ValueTree: Equatable, Hashable {
     public var metadata: Metadata
-    public var storageType: StorageType
+    public var storedType: StoredType
     
     private var propertiesByName = [String:Property]()
     
     public var valueTreeReference: ValueTreeReference {
-        return ValueTreeReference(uniqueIdentifier: metadata.uniqueIdentifier, storageType: storageType)
+        return ValueTreeReference(uniqueIdentifier: metadata.uniqueIdentifier, storedType: storedType)
     }
     
     public var propertyNames: [String] {
         return Array(propertiesByName.keys)
     }
 
-    public init(storageType: StorageType, metadata: Metadata) {
-        self.storageType = storageType
+    public init(storedType: StoredType, metadata: Metadata) {
+        self.storedType = storedType
         self.metadata = metadata
     }
     
     public init(deepCopying other:ValueTree) {
         metadata = other.metadata
-        storageType = other.storageType
+        storedType = other.storedType
         propertiesByName = other.propertiesByName
     }
     
@@ -54,7 +54,7 @@ public final class ValueTree: Equatable, Hashable {
     }
     
     public static func ==(left: ValueTree, right: ValueTree) -> Bool {
-        return left.propertiesByName == right.propertiesByName && left.metadata == right.metadata && left.storageType == right.storageType
+        return left.propertiesByName == right.propertiesByName && left.metadata == right.metadata && left.storedType == right.storedType
     }
     
 }

@@ -1,5 +1,5 @@
 //
-//  CloudKitStorage.swift
+//  CloudKitRepository.swift
 //  Impeller
 //
 //  Created by Drew McCormack on 29/12/2016.
@@ -24,7 +24,7 @@ struct CloudKitCursor: Cursor {
 }
 
 
-class CloudKitStorage: Exchangable {
+class CloudKitRepository: Exchangable {
     
     public let uniqueIdentifier: UniqueIdentifier
     private let database: CKDatabase
@@ -41,7 +41,7 @@ class CloudKitStorage: Exchangable {
         database.save(zone) { zone, error in }
     }
 
-    func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void) {
+    func push(changesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void) {
         let token = (cursor as? CloudKitCursor)?.serverToken
         var valueTrees = [ValueTree]()
         let options = CKFetchRecordZoneChangesOptions()
@@ -70,7 +70,7 @@ class CloudKitStorage: Exchangable {
         database.add(operation)
     }
     
-    func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
+    func pull(_ ValueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
         
     }
 }
@@ -79,9 +79,9 @@ class CloudKitStorage: Exchangable {
 extension ValueTree {
     
     func makeRecord(inZoneWithID zoneID:CKRecordZoneID) -> CKRecord {
-        let recordName = "\(storageType)__\(metadata.uniqueIdentifier)"
+        let recordName = "\(storedType)__\(metadata.uniqueIdentifier)"
         let recordID = CKRecordID(recordName: recordName, zoneID: zoneID)
-        let newRecord = CKRecord(recordType: storageType, recordID: recordID)
+        let newRecord = CKRecord(recordType: storedType, recordID: recordID)
         updateRecord(newRecord)
         return newRecord
     }
@@ -121,16 +121,16 @@ extension ValueTree {
                     record[name] = [] as CKRecordValue
                 }
             case .valueTreeReference(let ref):
-                record[name] = [ref.storageType, ref.uniqueIdentifier] as CKRecordValue
+                record[name] = [ref.storedType, ref.uniqueIdentifier] as CKRecordValue
             case .optionalValueTreeReference(let ref):
                 if let ref = ref {
-                    record[name] = [ref.storageType, ref.uniqueIdentifier] as CKRecordValue
+                    record[name] = [ref.storedType, ref.uniqueIdentifier] as CKRecordValue
                 }
                 else {
                     record[name] = ["nil", ""] as CKRecordValue
                 }
             case .valueTreeReferences(let refs):
-                record[name] = refs.map { [$0.storageType, $0.uniqueIdentifier] } as CKRecordValue
+                record[name] = refs.map { [$0.storedType, $0.uniqueIdentifier] } as CKRecordValue
             }
         }
     }
@@ -142,12 +142,12 @@ extension CKRecord {
     
     var asValueTree: ValueTree? {
         guard let timestamp = self["metadata.timestamp"] as? TimeInterval,
-              let version = self["metadata.version"] as? StorageVersion else {
+              let version = self["metadata.version"] as? StoredVersion else {
             return nil
         }
         
-        // Record name is storageType + "__" + unique id. This is because in Impeller,
-        // the uniqueId only has to be unique for a single storage type
+        // Record name is storedType + "__" + unique id. This is because in Impeller,
+        // the uniqueId only has to be unique for a single repository type
         let recordName = recordID.recordName
         let index = recordName.index(recordName.startIndex, offsetBy: recordType.characters.count+2)
         let uniqueIdentifier = recordName.substring(from:index)
@@ -156,7 +156,7 @@ extension CKRecord {
         metadata.version = version
         metadata.timestamp = timestamp
         
-        let valueTree = ValueTree(storageType: recordType, metadata: metadata)
+        let valueTree = ValueTree(storedType: recordType, metadata: metadata)
         for key in allKeys() {
             if key.contains(".metadata.") { continue }
             
@@ -242,7 +242,7 @@ extension CKRecord {
                 }
             case .valueTreeReference:
                 guard let v = value as? [String], v.count == 2 else { continue }
-                let ref = ValueTreeReference(uniqueIdentifier: v[1], storageType: v[0])
+                let ref = ValueTreeReference(uniqueIdentifier: v[1], storedType: v[0])
                 property = .valueTreeReference(ref)
             case .optionalValueTreeReference:
                 guard let v = value as? [String], v.count == 2 else { continue }
@@ -250,12 +250,12 @@ extension CKRecord {
                     property = .optionalValueTreeReference(nil)
                 }
                 else {
-                    let ref = ValueTreeReference(uniqueIdentifier: v[1], storageType: v[0])
+                    let ref = ValueTreeReference(uniqueIdentifier: v[1], storedType: v[0])
                     property = .optionalValueTreeReference(ref)
                 }
             case .valueTreeReferences:
                 guard let v = value as? [[String]] else { continue }
-                let refs = v.map { r in r.count == 2 ? ValueTreeReference(uniqueIdentifier: r[1], storageType: r[0]) : nil }.flatMap { $0 }
+                let refs = v.map { r in r.count == 2 ? ValueTreeReference(uniqueIdentifier: r[1], storedType: r[0]) : nil }.flatMap { $0 }
                 property = .valueTreeReferences(refs)
             }
             

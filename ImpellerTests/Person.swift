@@ -10,7 +10,7 @@ import Impeller
 
 struct Person: Storable {
     
-    static let storageType = "Person"
+    static let storedType = "Person"
     var metadata = Metadata()
     
     var name = "No Name"
@@ -19,16 +19,16 @@ struct Person: Storable {
     
     init() {}
     
-    init?(withStorage storage:StorageSource) {
-        name = storage.value(for: "name")!
-        age = storage.optionalValue(for: "age")!
-        tags = storage.values(for: "tags")!
+    init?(withRepository repository:SourceRepository) {
+        name = repository.value(for: "name")!
+        age = repository.optionalValue(for: "age")!
+        tags = repository.values(for: "tags")!
     }
     
-    func store(in storage:StorageSink) {
-        storage.store(name, for: "name")
-        storage.store(age, for: "age")
-        storage.store(tags, for: "tags")
+    func store(in repository:SinkRepository) {
+        repository.store(name, for: "name")
+        repository.store(age, for: "age")
+        repository.store(tags, for: "tags")
     }
     
     static func == (left: Person, right: Person) -> Bool {

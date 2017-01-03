@@ -1,5 +1,5 @@
 //
-//  MemoryStorage
+//  MemoryRepository
 //  Impeller
 //
 //  Created by Drew McCormack on 08/12/2016.
@@ -26,10 +26,10 @@ fileprivate struct TimestampCursor: Cursor {
 }
 
 
-public class MemoryStorage: Storage, Exchangable {
+public class MemoryRepository: Repository, Exchangable {
     public var uniqueIdentifier: UniqueIdentifier = uuid()
     private var valueTreesByKey = [String:ValueTree]()
-    private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storageType: "")
+    private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storedType: "")
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
     private var saveContext: Any?
     private var saveTimestamp = Date.distantPast.timeIntervalSinceReferenceDate
@@ -37,11 +37,11 @@ public class MemoryStorage: Storage, Exchangable {
     public init() {}
     
     private class func key(for reference: ValueTreeReference) -> String {
-        return "\(reference.storageType)/\(reference.uniqueIdentifier)"
+        return "\(reference.storedType)/\(reference.uniqueIdentifier)"
     }
     
     private var currentValueTreeKey: String {
-        return MemoryStorage.key(for: currentTreeReference)
+        return MemoryRepository.key(for: currentTreeReference)
     }
     
     private var currentValueTree: ValueTree? {
@@ -140,7 +140,7 @@ public class MemoryStorage: Storage, Exchangable {
     }
     
     public func store<T:Storable>(_ value: inout T, for key:String) {
-        let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
+        let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
         let property: Property = .valueTreeReference(reference)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
 
@@ -156,7 +156,7 @@ public class MemoryStorage: Storage, Exchangable {
     public func store<T:Storable>(_ value: inout T?, for key:String) {
         var reference: ValueTreeReference!
         if let value = value {
-            reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
+            reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
         }
         
         let property: Property = .optionalValueTreeReference(reference)
@@ -175,7 +175,7 @@ public class MemoryStorage: Storage, Exchangable {
     // TODO: Need to determine here which children have been excluded, and explicitly delete them
     public func store<T:Storable>(_ values: inout [T], for key:String) {
         let references = values.map {
-            ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storageType: T.storageType)
+            ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storedType: T.storedType)
         }
         
         let property: Property = .valueTreeReferences(references)
@@ -198,18 +198,18 @@ public class MemoryStorage: Storage, Exchangable {
         saveContext = context
         saveTimestamp = Date.timeIntervalSinceReferenceDate
         identifiersOfUnchanged = Set<UniqueIdentifier>()
-        currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
+        currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
         storeValueAndDescendents(of: &value)
     }
     
     func storeValueAndDescendents<T:Storable>(of value: inout T) {
         let storeValue:T? = fetchValue(identifiedBy: value.metadata.uniqueIdentifier)
         if storeValue == nil {
-            valueTreesByKey[currentValueTreeKey] = ValueTree(storageType: T.storageType, metadata: value.metadata)
+            valueTreesByKey[currentValueTreeKey] = ValueTree(storedType: T.storedType, metadata: value.metadata)
         }
         
         var resolvedValue:T
-        var resolvedVersion:StorageVersion = 0
+        var resolvedVersion:StoredVersion = 0
         let resolvedTimestamp = saveTimestamp
         var changed = true
         
@@ -218,7 +218,7 @@ public class MemoryStorage: Storage, Exchangable {
             resolvedValue = value
             resolvedVersion = 0
         }
-        else if storeValue!.isStorageEquivalent(to: value) && value.metadata == storeValue!.metadata {
+        else if storeValue!.isRepositoryEquivalent(to: value) && value.metadata == storeValue!.metadata {
             // Values unchanged from store. Don't save data again
             resolvedValue = value
             resolvedVersion = value.metadata.version
@@ -254,12 +254,12 @@ public class MemoryStorage: Storage, Exchangable {
     public func fetchValue<T:Storable>(identifiedBy uniqueIdentifier:UniqueIdentifier) -> T? {
         var result: T?
         transaction {
-            currentTreeReference = ValueTreeReference(uniqueIdentifier: uniqueIdentifier, storageType: T.storageType)
+            currentTreeReference = ValueTreeReference(uniqueIdentifier: uniqueIdentifier, storedType: T.storedType)
             guard let valueTree = currentValueTree else {
                 return
             }
             
-            result = T.init(withStorage: self)
+            result = T.init(withRepository: self)
             result?.metadata = valueTree.metadata
         }
         return result
@@ -271,7 +271,7 @@ public class MemoryStorage: Storage, Exchangable {
         currentTreeReference = storedReference
     }
 
-    public func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void) {
+    public func push(changesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void) {
         let timestampCursor = cursor as? TimestampCursor
         var maximumTimestamp = timestampCursor?.timestamp ?? Date.distantPast.timeIntervalSinceReferenceDate
         var valueTrees = [ValueTree]()
@@ -285,10 +285,10 @@ public class MemoryStorage: Storage, Exchangable {
         completion(nil, valueTrees, TimestampCursor(timestamp: maximumTimestamp))
     }
     
-    public func assimilate(_ valueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
+    public func pull(_ valueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
         for newTree in valueTrees {
-            let reference = ValueTreeReference(uniqueIdentifier: newTree.metadata.uniqueIdentifier, storageType: newTree.storageType)
-            let key = MemoryStorage.key(for: reference)
+            let reference = ValueTreeReference(uniqueIdentifier: newTree.metadata.uniqueIdentifier, storedType: newTree.storedType)
+            let key = MemoryRepository.key(for: reference)
             var replaceExisting = false
             var maxVersion = newTree.metadata.version
             if let existingTree = valueTreesByKey[key] {

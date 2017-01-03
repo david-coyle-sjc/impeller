@@ -10,7 +10,7 @@ import Impeller
 
 struct Parent: Storable {
     
-    static let storageType = "Parent"
+    static let storedType = "Parent"
     var metadata = Metadata()
     
     var child = Child()
@@ -18,13 +18,13 @@ struct Parent: Storable {
 
     init() {}
     
-    init?(withStorage storage:StorageSource) {
-        child = storage.value(for: "child")!
-        children = storage.values(for: "children")!
+    init?(withRepository repository:SourceRepository) {
+        child = repository.value(for: "child")!
+        children = repository.values(for: "children")!
     }
     
-    mutating func store(in storage:StorageSink) {
-        storage.store(&child, for: "child")
-        storage.store(&children, for: "children")
+    mutating func store(in repository:SinkRepository) {
+        repository.store(&child, for: "child")
+        repository.store(&children, for: "children")
     }
 }

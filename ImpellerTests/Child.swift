@@ -10,19 +10,19 @@ import Impeller
 
 struct Child: Storable {
     
-    static let storageType = "Child"
+    static let storedType = "Child"
     var metadata = Metadata()
     
     var age = 0
         
     init() {}
     
-    init?(withStorage storage:StorageSource) {
-        age = storage.value(for: "age")!
+    init?(withRepository repository:SourceRepository) {
+        age = repository.value(for: "age")!
     }
     
-    mutating func store(in storage:StorageSink) {
-        storage.store(age, for: "age")
+    mutating func store(in repository:SinkRepository) {
+        repository.store(age, for: "age")
     }
     
     static func == (left: Child, right: Child) -> Bool {

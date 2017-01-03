@@ -6,12 +6,12 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-final class ValueTreeBuilder<T:Storable> : StorageSink {
+final class ValueTreeBuilder<T:Storable> : SinkRepository {
     private (set) var valueTree: ValueTree
     private var storable: T
     
     init(_ storable:T) {
-        valueTree = ValueTree(storageType: T.storageType, metadata: storable.metadata)
+        valueTree = ValueTree(storedType: T.storedType, metadata: storable.metadata)
         self.storable = storable
         self.save(&self.storable)
     }
@@ -36,19 +36,19 @@ final class ValueTreeBuilder<T:Storable> : StorageSink {
     }
     
     func store<T:Storable>(_ value:inout T, for key:String) {
-        let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storageType: T.storageType)
+        let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
         valueTree.set(key, to: .valueTreeReference(reference))
     }
     
     func store<T:Storable>(_ value:inout T?, for key:String) {
         let id = value?.metadata.uniqueIdentifier
-        let reference = id != nil ? ValueTreeReference(uniqueIdentifier: id!, storageType: T.storageType) : nil
+        let reference = id != nil ? ValueTreeReference(uniqueIdentifier: id!, storedType: T.storedType) : nil
         valueTree.set(key, to: .optionalValueTreeReference(reference))
     }
     
     func store<T:Storable>(_ values:inout [T], for key:String) {
         let references = values.map {
-            ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storageType: T.storageType)
+            ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storedType: T.storedType)
         }
         valueTree.set(key, to: .valueTreeReferences(references))
     }

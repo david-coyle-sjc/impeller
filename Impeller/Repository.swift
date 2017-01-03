@@ -1,15 +1,15 @@
 //
-//  Storage.swift
+//  Repository.swift
 //  Impeller
 //
 //  Created by Drew McCormack on 08/12/2016.
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-public typealias Storage = StorageSource & StorageSink
+public typealias Repository = SourceRepository & SinkRepository
 
 
-public protocol StorageSource: class {
+public protocol SourceRepository: class {
     
     func value<T:StorablePrimitive>(for key:String) -> T?
     func optionalValue<T:StorablePrimitive>(for key:String) -> T??
@@ -21,7 +21,7 @@ public protocol StorageSource: class {
 }
 
 
-public protocol StorageSink: class {
+public protocol SinkRepository: class {
     
     func save<T:Storable>(_ value: inout T, context: Any?)
 

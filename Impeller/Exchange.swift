@@ -15,8 +15,8 @@ public protocol Exchangable: class {
     
     var uniqueIdentifier: UniqueIdentifier { get }
     
-    func fetchValueTrees(forChangesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void)
-    func assimilate(_ ValueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler)
+    func push(changesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void)
+    func pull(_ ValueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler)
     
 }
 
@@ -57,35 +57,35 @@ public class Exchange {
         for e1 in exchangables {
             let uniqueIdentifier = e1.uniqueIdentifier
             let c1 = cursor(forExchangableIdentifiedBy: uniqueIdentifier)
-            e1.fetchValueTrees(forChangesSince: c1) {
+            e1.push(changesSince: c1) {
                 error, dictionaries, newCursor in
                 
                 defer { group.leave() }
                 guard returnError == nil else { return }
                 guard error == nil else { returnError = error; return }
                 
-                let assimilateGroup = DispatchGroup()
+                let pullGroup = DispatchGroup()
                 
                 // Join groups for each other exchangable.
                 for e2 in self.exchangables {
                     guard e1 !== e2 else { continue }
                     group.enter()
-                    assimilateGroup.enter()
+                    pullGroup.enter()
                 }
                 
                 // Save cursor if all stores successfully assimilate data
-                assimilateGroup.notify(queue: DispatchQueue.main) {
+                pullGroup.notify(queue: DispatchQueue.main) {
                     guard returnError == nil else { return }
                     self.save(newCursor, forExchangableIdentifiedBy: uniqueIdentifier)
                 }
                 
                 for e2 in self.exchangables {
                     guard e1 !== e2 else { continue }
-                    e2.assimilate(dictionaries) {
+                    e2.pull(dictionaries) {
                         error in
                         
                         defer { group.leave() }
-                        defer { assimilateGroup.leave() }
+                        defer { pullGroup.leave() }
 
                         guard returnError == nil else { return }
                         guard error == nil else { returnError = error; return }

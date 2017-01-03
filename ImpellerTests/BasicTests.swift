@@ -11,10 +11,10 @@ import XCTest
 
 class BasicTests: XCTestCase {
     
-    var store: MemoryStorage!
+    var store: MemoryRepository!
     
     override func setUp() {
-        store = MemoryStorage()
+        store = MemoryRepository()
     }
     
     func testSave() {

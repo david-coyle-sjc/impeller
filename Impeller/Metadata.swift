@@ -7,7 +7,7 @@
 //
 
 public typealias UniqueIdentifier = String
-typealias StorageVersion = UInt64
+typealias StoredVersion = UInt64
 
 public struct Metadata: Equatable {
     
@@ -17,7 +17,7 @@ public struct Metadata: Equatable {
         
     public let uniqueIdentifier: UniqueIdentifier
     public internal(set) var timestamp: TimeInterval // When stored
-    var version: StorageVersion = 0
+    var version: StoredVersion = 0
     
     public init(uniqueIdentifier: UniqueIdentifier = UUID().uuidString) {
         self.uniqueIdentifier = uniqueIdentifier
