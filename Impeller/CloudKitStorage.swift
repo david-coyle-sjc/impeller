@@ -120,12 +120,17 @@ extension ValueTree {
                     record[typeKey] = 0 as CKRecordValue
                     record[name] = [] as CKRecordValue
                 }
-            case .valueTreeReference:
-                break
-            case .optionalValueTreeReference:
-                break
-            case .valueTreeReferences:
-                break
+            case .valueTreeReference(let ref):
+                record[name] = [ref.storageType, ref.uniqueIdentifier] as CKRecordValue
+            case .optionalValueTreeReference(let ref):
+                if let ref = ref {
+                    record[name] = [ref.storageType, ref.uniqueIdentifier] as CKRecordValue
+                }
+                else {
+                    record[name] = ["nil", ""] as CKRecordValue
+                }
+            case .valueTreeReferences(let refs):
+                record[name] = refs.map { [$0.storageType, $0.uniqueIdentifier] } as CKRecordValue
             }
         }
     }
@@ -240,12 +245,11 @@ extension CKRecord {
                 let ref = ValueTreeReference(uniqueIdentifier: v[1], storageType: v[0])
                 property = .valueTreeReference(ref)
             case .optionalValueTreeReference:
-                let isNull = primitiveTypeInt == 0
-                if isNull {
+                guard let v = value as? [String], v.count == 2 else { continue }
+                if v[0] == "nil" {
                     property = .optionalValueTreeReference(nil)
                 }
                 else {
-                    guard let v = value as? [String], v.count == 2 else { continue }
                     let ref = ValueTreeReference(uniqueIdentifier: v[1], storageType: v[0])
                     property = .optionalValueTreeReference(ref)
                 }
