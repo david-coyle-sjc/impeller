@@ -57,8 +57,8 @@ public final class ValueTree: Equatable, Hashable {
         return left.propertiesByName == right.propertiesByName && left.metadata == right.metadata && left.storedType == right.storedType
     }
     
-    func merged(with other: ValueTree) -> ValueTree {
-        guard self != other else {
+    func merged(with other: ValueTree?) -> ValueTree {
+        guard let other = other, self != other else {
             return ValueTree(deepCopying: self)
         }
         

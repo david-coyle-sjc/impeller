@@ -81,7 +81,6 @@ class CloudKitRepository: Exchangable {
                 completion(error)
                 return
             }
-            
             for (_, partialError) in ckError?.partialErrorsByItemID ?? [:] {
                 guard (partialError as! CKError).code == .unknownItem else {
                     completion(error)
@@ -93,18 +92,13 @@ class CloudKitRepository: Exchangable {
             var recordsToUpload = [CKRecord]()
             for pulledValueTree in valueTrees {
                 let recordID = pulledValueTree.recordID(inZoneWithID: self.zone.zoneID)
-                if let record = recordsByRecordID![recordID] {
-                    if let cloudValueTree = record.asValueTree {
-                        let mergedTree = pulledValueTree.merged(with: cloudValueTree)
-                        if mergedTree != cloudValueTree {
-                            mergedTree.updateRecord(record)
-                            recordsToUpload.append(record)
-                        }
-                    }
-                }
-                else {
-                    let newRecord = pulledValueTree.makeRecord(inZoneWithID: self.zone.zoneID)
-                    recordsToUpload.append(newRecord)
+                let record = recordsByRecordID![recordID]
+                let cloudValueTree = record?.asValueTree
+                let mergedTree = pulledValueTree.merged(with: cloudValueTree)
+                if mergedTree != cloudValueTree {
+                    let recordToUpdate = record ?? CKRecord(recordType: pulledValueTree.storedType, recordID: recordID)
+                    mergedTree.updateRecord(recordToUpdate)
+                    recordsToUpload.append(recordToUpdate)
                 }
             }
             
