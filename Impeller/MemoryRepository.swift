@@ -289,19 +289,14 @@ public class MemoryRepository: Repository, Exchangable {
         for newTree in valueTrees {
             let reference = ValueTreeReference(uniqueIdentifier: newTree.metadata.uniqueIdentifier, storedType: newTree.storedType)
             let key = MemoryRepository.key(for: reference)
-            var replaceExisting = false
-            var maxVersion = newTree.metadata.version
+            var mergedTree: ValueTree!
             if let existingTree = valueTreesByKey[key] {
-                if existingTree.metadata.timestamp < newTree.metadata.timestamp {
-                    replaceExisting = true
-                    maxVersion = max(maxVersion, existingTree.metadata.version+1)
-                }
+                mergedTree = existingTree.merged(with: newTree)
             }
             else {
-                replaceExisting = true
+                mergedTree = ValueTree(deepCopying: newTree)
             }
-            newTree.metadata.version = maxVersion
-            if replaceExisting { valueTreesByKey[key] = newTree }
+            valueTreesByKey[key] = mergedTree
         }
         completion(nil)
     }
