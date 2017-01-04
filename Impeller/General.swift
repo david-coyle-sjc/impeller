@@ -8,6 +8,7 @@
 
 public typealias CompletionHandler = ((Error?) -> Void)
 
+
 public struct AnyEquatable: Equatable {
     fileprivate let value: Any
     fileprivate let equals: (Any) -> Bool
@@ -23,6 +24,7 @@ public struct AnyEquatable: Equatable {
 public func ==(lhs: AnyEquatable, rhs: AnyEquatable) -> Bool {
     return lhs.equals(rhs.value)
 }
+
 
 func uuid() -> String {
     var data = Data(count: 16)
@@ -40,6 +42,7 @@ func uuid() -> String {
     return result
 }
 
+
 extension Dictionary {
     func setting(_ value: Value, for key: Key) -> [Key:Value] {
         var result = self
@@ -53,5 +56,17 @@ extension Dictionary {
             d[key] = transform(value)
         }
         return d
+    }
+}
+
+
+extension Array {
+    func elementsByKey<KeyType:Hashable>(generatingKeysWith keyGeneratingBlock:(Element)->KeyType) -> [KeyType:Element] {
+        var result = [KeyType:Element]()
+        for element in self {
+            let key = keyGeneratingBlock(element)
+            result[key] = element
+        }
+        return result
     }
 }

@@ -70,17 +70,66 @@ class CloudKitRepository: Exchangable {
         database.add(operation)
     }
     
-    func pull(_ ValueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
+    public func pull(_ valueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
+        let valueTreesByRecordID = valueTrees.elementsByKey { $0.recordID(inZoneWithID: zone.zoneID) }
+        let recordIDs = Array(valueTreesByRecordID.keys)
+        let fetchOperation = CKFetchRecordsOperation(recordIDs: recordIDs)
+        fetchOperation.fetchRecordsCompletionBlock = { recordsByRecordID, error in
+            // Only acceptable errors are partial errors where code is .unknownItem
+            let ckError = error as! CKError?
+            guard ckError == nil || ckError!.code == .partialFailure else {
+                completion(error)
+                return
+            }
+            
+            for (_, partialError) in ckError?.partialErrorsByItemID ?? [:] {
+                guard (partialError as! CKError).code == .unknownItem else {
+                    completion(error)
+                    return
+                }
+            }
         
+            // Process updates
+            var recordsToUpload = [CKRecord]()
+            for pulledValueTree in valueTrees {
+                let recordID = pulledValueTree.recordID(inZoneWithID: self.zone.zoneID)
+                if let record = recordsByRecordID![recordID] {
+                    if let cloudValueTree = record.asValueTree {
+                        let mergedTree = pulledValueTree.merged(with: cloudValueTree)
+                        if mergedTree != cloudValueTree {
+                            mergedTree.updateRecord(record)
+                            recordsToUpload.append(record)
+                        }
+                    }
+                }
+                else {
+                    let newRecord = pulledValueTree.makeRecord(inZoneWithID: self.zone.zoneID)
+                    recordsToUpload.append(newRecord)
+                }
+            }
+            
+            // Upload
+            let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpload, recordIDsToDelete: nil)
+            modifyOperation.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
+                completion(error)
+            }
+            self.database.add(modifyOperation)
+        }
+        
+        database.add(fetchOperation)
     }
 }
 
 
 extension ValueTree {
     
-    func makeRecord(inZoneWithID zoneID:CKRecordZoneID) -> CKRecord {
+    func recordID(inZoneWithID zoneID: CKRecordZoneID) -> CKRecordID {
         let recordName = "\(storedType)__\(metadata.uniqueIdentifier)"
-        let recordID = CKRecordID(recordName: recordName, zoneID: zoneID)
+        return CKRecordID(recordName: recordName, zoneID: zoneID)
+    }
+    
+    func makeRecord(inZoneWithID zoneID:CKRecordZoneID) -> CKRecord {
+        let recordID = self.recordID(inZoneWithID: zoneID)
         let newRecord = CKRecord(recordType: storedType, recordID: recordID)
         updateRecord(newRecord)
         return newRecord
