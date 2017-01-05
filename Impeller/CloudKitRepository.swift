@@ -10,10 +10,10 @@ import Foundation
 import CloudKit
 
 
-struct CloudKitCursor: Cursor {
+public struct CloudKitCursor: Cursor {
     var serverToken: CKServerChangeToken
     
-    var data: Data {
+    public var data: Data {
         get {
             return NSKeyedArchiver.archivedData(withRootObject: serverToken)
         }
@@ -24,13 +24,13 @@ struct CloudKitCursor: Cursor {
 }
 
 
-class CloudKitRepository: Exchangable {
+public class CloudKitRepository: Exchangable {
     
     public let uniqueIdentifier: UniqueIdentifier
     private let database: CKDatabase
     private let zone: CKRecordZone
     
-    init(withUniqueIdentifier identifier: UniqueIdentifier, cloudDatabase: CKDatabase) {
+    public init(withUniqueIdentifier identifier: UniqueIdentifier, cloudDatabase: CKDatabase) {
         self.uniqueIdentifier = identifier
         self.database = cloudDatabase
         self.zone = CKRecordZone(zoneName: uniqueIdentifier)
@@ -41,11 +41,14 @@ class CloudKitRepository: Exchangable {
         database.save(zone) { zone, error in }
     }
 
-    func push(changesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void) {
-        let token = (cursor as? CloudKitCursor)?.serverToken
+    public func push(changesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void) {
+        var newCursor: CloudKitCursor?
         var valueTrees = [ValueTree]()
+        
+        let token = (cursor as? CloudKitCursor)?.serverToken
         let options = CKFetchRecordZoneChangesOptions()
         options.previousServerChangeToken = token
+        
         let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: [zone.zoneID], optionsByRecordZoneID: [zone.zoneID : options])
         operation.fetchAllChanges = true
         operation.recordChangedBlock = { record in
@@ -53,7 +56,15 @@ class CloudKitRepository: Exchangable {
                 valueTrees.append(valueTree)
             }
         }
+        operation.recordWithIDWasDeletedBlock = { recordID in
+            // TODO: Finish implementing deletions
+        }
         operation.recordZoneFetchCompletionBlock = { zoneID, token, clientData, moreComing, error in
+            if let token = token, error == nil {
+                newCursor = CloudKitCursor(serverToken: token)
+            }
+        }
+        operation.fetchRecordZoneChangesCompletionBlock = { error in
             if let error = error as? CKError {
                 if error.code == .changeTokenExpired {
                     completion(nil, [], nil)
@@ -63,7 +74,6 @@ class CloudKitRepository: Exchangable {
                 }
             }
             else {
-                let newCursor = token != nil ? CloudKitCursor(serverToken: token!) : nil
                 completion(nil, valueTrees, newCursor)
             }
         }

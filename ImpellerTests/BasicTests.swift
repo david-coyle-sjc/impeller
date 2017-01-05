@@ -11,10 +11,10 @@ import XCTest
 
 class BasicTests: XCTestCase {
     
-    var store: MemoryRepository!
+    var respository: MemoryRepository!
     
     override func setUp() {
-        store = MemoryRepository()
+        respository = MemoryRepository()
     }
     
     func testSave() {
@@ -23,7 +23,7 @@ class BasicTests: XCTestCase {
         person.age = 10
         person.tags.append("Tag")
         
-        store.save(&person)
+        respository.save(&person)
         
         XCTAssertEqual(person.name, "Bob")
         XCTAssertEqual(person.age, 10)
@@ -36,9 +36,9 @@ class BasicTests: XCTestCase {
         person.age = 10
         person.tags = ["tag"]
         
-        store.save(&person)
+        respository.save(&person)
         
-        let fetchedPerson:Person? = store.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)
+        let fetchedPerson:Person? = respository.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)
         XCTAssertEqual(fetchedPerson!.name, "Bob")
         XCTAssertEqual(fetchedPerson!.age, 10)
         XCTAssertEqual(fetchedPerson!.tags, ["tag"])
@@ -50,11 +50,11 @@ class BasicTests: XCTestCase {
         person.age = 10
         XCTAssertEqual(person.metadata.version, 0)
 
-        store.save(&person)
+        respository.save(&person)
         XCTAssertEqual(person.metadata.version, 0)
         
         person.name = "Dave"
-        store.save(&person)
+        respository.save(&person)
         XCTAssertEqual(person.metadata.version, 1)
     }
     
@@ -62,10 +62,10 @@ class BasicTests: XCTestCase {
         var person = Person()
         person.name = "Bob"
         person.age = 10
-        store.save(&person)
+        respository.save(&person)
         
         let metadata = person.metadata
-        store.save(&person)
+        respository.save(&person)
         XCTAssertEqual(metadata, person.metadata)
     }
     
@@ -73,77 +73,77 @@ class BasicTests: XCTestCase {
         var person = Person()
         person.name = "Bob"
         person.age = nil
-        store.save(&person)
+        respository.save(&person)
         
-        let fetchedPerson:Person? = store.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)
+        let fetchedPerson:Person? = respository.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)
         XCTAssertNil(fetchedPerson!.age)
     }
     
     func testParentWithChild() {
         var parent = Parent()
         parent.child.age = 10
-        store.save(&parent)
+        respository.save(&parent)
 
-        let fetchedChild:Child! = store.fetchValue(identifiedBy: parent.child.metadata.uniqueIdentifier)
+        let fetchedChild:Child! = respository.fetchValue(identifiedBy: parent.child.metadata.uniqueIdentifier)
         XCTAssertEqual(fetchedChild.age, 10)
 
-        let fetchedParent:Parent! = store.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
+        let fetchedParent:Parent! = respository.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
         XCTAssertEqual(fetchedParent.child.age, 10)
     }
     
-    func testChangingChildInStoreChangesFetchedParent() {
+    func testChangingChildInrespositoryChangesFetchedParent() {
         var parent = Parent()
         parent.child.age = 10
-        store.save(&parent)
+        respository.save(&parent)
         
-        var child:Child? = store.fetchValue(identifiedBy: parent.child.metadata.uniqueIdentifier)
+        var child:Child? = respository.fetchValue(identifiedBy: parent.child.metadata.uniqueIdentifier)
         child!.age = 20
-        store.save(&child!)
+        respository.save(&child!)
         
         XCTAssertEqual(parent.child.age, 10)
         XCTAssertEqual(child!.age, 20)
 
-        let fetchedParent:Parent! = store.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
+        let fetchedParent:Parent! = respository.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
         XCTAssertEqual(fetchedParent.child.age, 20)
     }
     
     func testChangingChildButSavingParent() {
         var parent = Parent()
         parent.child.age = 10
-        store.save(&parent)
+        respository.save(&parent)
         XCTAssertEqual(parent.child.age, 10)
 
         parent.child.age = 20
         XCTAssertEqual(parent.child.age, 20)
 
-        store.save(&parent)
+        respository.save(&parent)
         XCTAssertEqual(parent.child.age, 20)
 
-        let child:Child? = store.fetchValue(identifiedBy: parent.child.metadata.uniqueIdentifier)
+        let child:Child? = respository.fetchValue(identifiedBy: parent.child.metadata.uniqueIdentifier)
         XCTAssertEqual(child!.age, 20)
     }
     
     func testResolvingConflicts() {
         var child = Child()
         child.age = 10
-        store.save(&child)
+        respository.save(&child)
     
-        // Update and set metadata to preceed stored value
+        // Update and set metadata to preceed respositoryd value
         child.age = 20
         child.metadata.timestamp -= 1.0
         child.metadata.version += 1
-        store.save(&child)
+        respository.save(&child)
         
-        // Ensure the stored values survive, due to having more recent timestamp
+        // Ensure the respositoryd values survive, due to having more recent timestamp
         XCTAssertEqual(child.age, 10)
         
         // Now set to later timestamp and save
         child.age = 20
         child.metadata.timestamp += 1.0
         child.metadata.version += 1
-        store.save(&child)
+        respository.save(&child)
         
-        // Ensure the stored values are updated
+        // Ensure the respositoryd values are updated
         XCTAssertEqual(child.age, 20)
     }
     
@@ -152,9 +152,9 @@ class BasicTests: XCTestCase {
         var child1 = Child() ; child1.age = 10
         var child2 = Child() ; child2.age = 12
         parent.children = [child1, child2]
-        store.save(&parent)
+        respository.save(&parent)
         
-        let fetchedParent:Parent? = store.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
+        let fetchedParent:Parent? = respository.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
         XCTAssertEqual(fetchedParent!.children.count, 2)
         
         let fetchedChild2 = fetchedParent?.children[1]

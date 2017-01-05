@@ -282,7 +282,9 @@ public class MemoryRepository: Repository, Exchangable {
                 maximumTimestamp = max(maximumTimestamp, time)
             }
         }
-        completion(nil, valueTrees, TimestampCursor(timestamp: maximumTimestamp))
+        DispatchQueue.main.async {
+            completion(nil, valueTrees, TimestampCursor(timestamp: maximumTimestamp))
+        }
     }
     
     public func pull(_ valueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
@@ -291,7 +293,9 @@ public class MemoryRepository: Repository, Exchangable {
             let key = MemoryRepository.key(for: reference)
             valueTreesByKey[key] = newTree.merged(with: valueTreesByKey[key])
         }
-        completion(nil)
+        DispatchQueue.main.async {
+            completion(nil)
+        }
     }
 }
 

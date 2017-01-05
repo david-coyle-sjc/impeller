@@ -13,7 +13,14 @@
 		071B35AF1E15273E00781F99 /* CloudKitRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071B35AE1E15273E00781F99 /* CloudKitRepository.swift */; };
 		071B35BD1E16952400781F99 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071B35BC1E16952400781F99 /* Property.swift */; };
 		071B35BF1E16E78300781F99 /* Primitive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071B35BE1E16E78300781F99 /* Primitive.swift */; };
+		07251A391E1EC7D700C2CD8C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07251A381E1EC7D700C2CD8C /* CloudKit.framework */; };
 		072576241E128F680086D1D5 /* ExchangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072576231E128F680086D1D5 /* ExchangeTests.swift */; };
+		0728B7CB1E1EBF8100CF9DA7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0728B7CA1E1EBF8100CF9DA7 /* AppDelegate.swift */; };
+		0728B7CD1E1EBF8100CF9DA7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0728B7CC1E1EBF8100CF9DA7 /* ViewController.swift */; };
+		0728B7D01E1EBF8100CF9DA7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0728B7CE1E1EBF8100CF9DA7 /* Main.storyboard */; };
+		0728B7D21E1EBF8100CF9DA7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0728B7D11E1EBF8100CF9DA7 /* Assets.xcassets */; };
+		0728B7D51E1EBF8100CF9DA7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0728B7D31E1EBF8100CF9DA7 /* LaunchScreen.storyboard */; };
+		0728B7E11E1EC05500CF9DA7 /* CloudKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0728B7E01E1EC05500CF9DA7 /* CloudKitTests.swift */; };
 		0737AAEE1DF9524E00ABBA90 /* Impeller.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0737AAE41DF9524D00ABBA90 /* Impeller.framework */; };
 		0737AAF31DF9524E00ABBA90 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AAF21DF9524E00ABBA90 /* BasicTests.swift */; };
 		0737AAF51DF9524E00ABBA90 /* Impeller.h in Headers */ = {isa = PBXBuildFile; fileRef = 0737AAE71DF9524D00ABBA90 /* Impeller.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -29,6 +36,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0728B7DA1E1EBF8D00CF9DA7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0737AADB1DF9524D00ABBA90 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0728B7C71E1EBF8100CF9DA7;
+			remoteInfo = "Test Host";
+		};
 		0737AAEF1DF9524E00ABBA90 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0737AADB1DF9524D00ABBA90 /* Project object */;
@@ -45,7 +59,17 @@
 		071B35AE1E15273E00781F99 /* CloudKitRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitRepository.swift; sourceTree = "<group>"; };
 		071B35BC1E16952400781F99 /* Property.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
 		071B35BE1E16E78300781F99 /* Primitive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Primitive.swift; sourceTree = "<group>"; };
+		07251A381E1EC7D700C2CD8C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		072576231E128F680086D1D5 /* ExchangeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeTests.swift; sourceTree = "<group>"; };
+		0728B7C81E1EBF8100CF9DA7 /* Test Host.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Test Host.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0728B7CA1E1EBF8100CF9DA7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		0728B7CC1E1EBF8100CF9DA7 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		0728B7CF1E1EBF8100CF9DA7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		0728B7D11E1EBF8100CF9DA7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0728B7D41E1EBF8100CF9DA7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		0728B7D61E1EBF8100CF9DA7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0728B7DC1E1EBFB000CF9DA7 /* Test Host.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Test Host.entitlements"; sourceTree = "<group>"; };
+		0728B7E01E1EC05500CF9DA7 /* CloudKitTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitTests.swift; sourceTree = "<group>"; };
 		0737AAE41DF9524D00ABBA90 /* Impeller.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Impeller.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0737AAE71DF9524D00ABBA90 /* Impeller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Impeller.h; sourceTree = "<group>"; };
 		0737AAE81DF9524D00ABBA90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -64,6 +88,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0728B7C51E1EBF8100CF9DA7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				07251A391E1EC7D700C2CD8C /* CloudKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0737AAE01DF9524D00ABBA90 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -121,12 +153,36 @@
 			name = Exchange;
 			sourceTree = "<group>";
 		};
+		0728B7C91E1EBF8100CF9DA7 /* Test Host */ = {
+			isa = PBXGroup;
+			children = (
+				0728B7DC1E1EBFB000CF9DA7 /* Test Host.entitlements */,
+				0728B7CA1E1EBF8100CF9DA7 /* AppDelegate.swift */,
+				0728B7CC1E1EBF8100CF9DA7 /* ViewController.swift */,
+				0728B7CE1E1EBF8100CF9DA7 /* Main.storyboard */,
+				0728B7D11E1EBF8100CF9DA7 /* Assets.xcassets */,
+				0728B7D31E1EBF8100CF9DA7 /* LaunchScreen.storyboard */,
+				0728B7D61E1EBF8100CF9DA7 /* Info.plist */,
+			);
+			name = "Test Host";
+			path = "../Test Host";
+			sourceTree = "<group>";
+		};
+		0728B7DD1E1EBFB300CF9DA7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				07251A381E1EC7D700C2CD8C /* CloudKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0737AADA1DF9524D00ABBA90 = {
 			isa = PBXGroup;
 			children = (
 				0737AAE61DF9524D00ABBA90 /* Impeller */,
 				0737AAF11DF9524E00ABBA90 /* ImpellerTests */,
 				0737AAE51DF9524D00ABBA90 /* Products */,
+				0728B7DD1E1EBFB300CF9DA7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -135,6 +191,7 @@
 			children = (
 				0737AAE41DF9524D00ABBA90 /* Impeller.framework */,
 				0737AAED1DF9524E00ABBA90 /* ImpellerTests.xctest */,
+				0728B7C81E1EBF8100CF9DA7 /* Test Host.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -156,11 +213,13 @@
 		0737AAF11DF9524E00ABBA90 /* ImpellerTests */ = {
 			isa = PBXGroup;
 			children = (
+				0728B7C91E1EBF8100CF9DA7 /* Test Host */,
 				0737AB081DF9537300ABBA90 /* Person.swift */,
 				0707B42F1DF9DDC300FE8F40 /* Parent.swift */,
 				0707B4311DF9DE0F00FE8F40 /* Child.swift */,
 				0737AAF21DF9524E00ABBA90 /* BasicTests.swift */,
 				072576231E128F680086D1D5 /* ExchangeTests.swift */,
+				0728B7E01E1EC05500CF9DA7 /* CloudKitTests.swift */,
 				0737AAF41DF9524E00ABBA90 /* Info.plist */,
 			);
 			path = ImpellerTests;
@@ -180,6 +239,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		0728B7C71E1EBF8100CF9DA7 /* Test Host */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0728B7D91E1EBF8100CF9DA7 /* Build configuration list for PBXNativeTarget "Test Host" */;
+			buildPhases = (
+				0728B7C41E1EBF8100CF9DA7 /* Sources */,
+				0728B7C51E1EBF8100CF9DA7 /* Frameworks */,
+				0728B7C61E1EBF8100CF9DA7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Test Host";
+			productName = "Test Host";
+			productReference = 0728B7C81E1EBF8100CF9DA7 /* Test Host.app */;
+			productType = "com.apple.product-type.application";
+		};
 		0737AAE31DF9524D00ABBA90 /* Impeller */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0737AAF81DF9524E00ABBA90 /* Build configuration list for PBXNativeTarget "Impeller" */;
@@ -210,6 +286,7 @@
 			);
 			dependencies = (
 				0737AAF01DF9524E00ABBA90 /* PBXTargetDependency */,
+				0728B7DB1E1EBF8D00CF9DA7 /* PBXTargetDependency */,
 			);
 			name = ImpellerTests;
 			productName = ImpellerTests;
@@ -226,6 +303,19 @@
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Drew McCormack";
 				TargetAttributes = {
+					0728B7C71E1EBF8100CF9DA7 = {
+						CreatedOnToolsVersion = 8.2;
+						DevelopmentTeam = P7BXV6PHLD;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
+					};
 					0737AAE31DF9524D00ABBA90 = {
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = P7BXV6PHLD;
@@ -236,6 +326,7 @@
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = P7BXV6PHLD;
 						ProvisioningStyle = Automatic;
+						TestTargetID = 0728B7C71E1EBF8100CF9DA7;
 					};
 				};
 			};
@@ -245,6 +336,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 0737AADA1DF9524D00ABBA90;
 			productRefGroup = 0737AAE51DF9524D00ABBA90 /* Products */;
@@ -253,11 +345,22 @@
 			targets = (
 				0737AAE31DF9524D00ABBA90 /* Impeller */,
 				0737AAEC1DF9524E00ABBA90 /* ImpellerTests */,
+				0728B7C71E1EBF8100CF9DA7 /* Test Host */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0728B7C61E1EBF8100CF9DA7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0728B7D51E1EBF8100CF9DA7 /* LaunchScreen.storyboard in Resources */,
+				0728B7D21E1EBF8100CF9DA7 /* Assets.xcassets in Resources */,
+				0728B7D01E1EBF8100CF9DA7 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0737AAE21DF9524D00ABBA90 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -275,6 +378,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0728B7C41E1EBF8100CF9DA7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0728B7CD1E1EBF8100CF9DA7 /* ViewController.swift in Sources */,
+				0728B7CB1E1EBF8100CF9DA7 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0737AADF1DF9524D00ABBA90 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -298,6 +410,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0728B7E11E1EC05500CF9DA7 /* CloudKitTests.swift in Sources */,
 				0737AB091DF9537300ABBA90 /* Person.swift in Sources */,
 				0737AAF31DF9524E00ABBA90 /* BasicTests.swift in Sources */,
 				072576241E128F680086D1D5 /* ExchangeTests.swift in Sources */,
@@ -309,6 +422,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0728B7DB1E1EBF8D00CF9DA7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0728B7C71E1EBF8100CF9DA7 /* Test Host */;
+			targetProxy = 0728B7DA1E1EBF8D00CF9DA7 /* PBXContainerItemProxy */;
+		};
 		0737AAF01DF9524E00ABBA90 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0737AAE31DF9524D00ABBA90 /* Impeller */;
@@ -316,7 +434,56 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		0728B7CE1E1EBF8100CF9DA7 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0728B7CF1E1EBF8100CF9DA7 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		0728B7D31E1EBF8100CF9DA7 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0728B7D41E1EBF8100CF9DA7 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
+		0728B7D71E1EBF8100CF9DA7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Test Host/Test Host.entitlements";
+				DEVELOPMENT_TEAM = P7BXV6PHLD;
+				INFOPLIST_FILE = "Test Host/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.impeller.Test-Host";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		0728B7D81E1EBF8100CF9DA7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Test Host/Test Host.entitlements";
+				DEVELOPMENT_TEAM = P7BXV6PHLD;
+				INFOPLIST_FILE = "Test Host/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.impeller.Test-Host";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
 		0737AAF61DF9524E00ABBA90 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -469,6 +636,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mentalfaculty.ImpellerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Test Host.app/Test Host";
 			};
 			name = Debug;
 		};
@@ -482,12 +650,22 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mentalfaculty.ImpellerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Test Host.app/Test Host";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0728B7D91E1EBF8100CF9DA7 /* Build configuration list for PBXNativeTarget "Test Host" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0728B7D71E1EBF8100CF9DA7 /* Debug */,
+				0728B7D81E1EBF8100CF9DA7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		0737AADE1DF9524D00ABBA90 /* Build configuration list for PBXProject "Impeller" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

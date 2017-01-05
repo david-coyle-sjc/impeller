@@ -43,14 +43,14 @@ public class Exchange {
     
     public func exchange(completionHandler completion:CompletionHandler?) {
         let group = DispatchGroup()
-        var returnError: Error?
         
         // Join group for each exchangable in outer loop. 
         // Avoid race conditions by doing this before starting loop.
         for e1 in exchangables { group.enter() }
         
         // When group is complete, call completion
-        group.notify(queue: DispatchQueue.main) {
+        var returnError: Error?
+        group.notify(queue: DispatchQueue.main) { [unowned self] in
             completion?(returnError)
         }
         
@@ -60,21 +60,26 @@ public class Exchange {
             e1.push(changesSince: c1) {
                 error, dictionaries, newCursor in
                 
-                defer { group.leave() }
-                guard returnError == nil else { return }
-                guard error == nil else { returnError = error; return }
-                
-                let pullGroup = DispatchGroup()
+                guard returnError == nil else {
+                    group.leave()
+                    return
+                }
+                guard error == nil else {
+                    returnError = error
+                    group.leave()
+                    return
+                }
                 
                 // Join groups for each other exchangable.
+                let pullGroup = DispatchGroup()
                 for e2 in self.exchangables {
                     guard e1 !== e2 else { continue }
-                    group.enter()
                     pullGroup.enter()
                 }
                 
                 // Save cursor if all stores successfully assimilate data
                 pullGroup.notify(queue: DispatchQueue.main) {
+                    defer { group.leave() }
                     guard returnError == nil else { return }
                     self.save(newCursor, forExchangableIdentifiedBy: uniqueIdentifier)
                 }
@@ -83,10 +88,7 @@ public class Exchange {
                     guard e1 !== e2 else { continue }
                     e2.pull(dictionaries) {
                         error in
-                        
-                        defer { group.leave() }
                         defer { pullGroup.leave() }
-
                         guard returnError == nil else { return }
                         guard error == nil else { returnError = error; return }
                     }
