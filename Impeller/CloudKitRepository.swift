@@ -40,6 +40,12 @@ public class CloudKitRepository: Exchangable {
     private func prepareZone() {
         database.save(zone) { zone, error in }
     }
+    
+    public func removeZone(completionHandler completion:@escaping CompletionHandler) {
+        database.delete(withRecordZoneID: zone.zoneID) { zoneID, error in
+            completion(error)
+        }
+    }
 
     public func push(changesSince cursor: Cursor?, completionHandler completion: @escaping (Error?, [ValueTree], Cursor?)->Void) {
         var newCursor: CloudKitCursor?
@@ -140,21 +146,21 @@ extension ValueTree {
     }
     
     func updateRecord(_ record: CKRecord) {
-        record["metadata.timestamp"] = metadata.timestamp as CKRecordValue
-        record["metadata.version"] = metadata.version as CKRecordValue
+        record["metadata__timestamp"] = metadata.timestamp as CKRecordValue
+        record["metadata__version"] = metadata.version as CKRecordValue
         for name in propertyNames {
             let property = get(name)!
             
-            let propertyTypeKey = name + ".metadata.propertyType"
+            let propertyTypeKey = name + "__metadata__propertyType"
             record[propertyTypeKey] = property.propertyType.rawValue as CKRecordValue
             
             switch property {
             case .primitive(let primitive):
-                let typeKey = name + ".metadata.primitiveType"
+                let typeKey = name + "__metadata__primitiveType"
                 record[typeKey] = primitive.type.rawValue as CKRecordValue
                 record[name] = primitive.value as? CKRecordValue
             case .optionalPrimitive(let primitive):
-                let typeKey = name + ".metadata.primitiveType"
+                let typeKey = name + "__metadata__primitiveType"
                 if let primitive = primitive {
                     record[typeKey] = primitive.type.rawValue as CKRecordValue
                     record[name] = primitive.value as? CKRecordValue
@@ -164,7 +170,7 @@ extension ValueTree {
                     record[name] = nil
                 }
             case .primitives(let primitives):
-                let typeKey = name + ".metadata.primitiveType"
+                let typeKey = name + "__metadata__primitiveType"
                 if primitives.count > 0 {
                     record[typeKey] = primitives.first!.type.rawValue as CKRecordValue
                     record[name] = primitives.map { $0.value } as CKRecordValue
@@ -194,8 +200,8 @@ extension ValueTree {
 extension CKRecord {
     
     var asValueTree: ValueTree? {
-        guard let timestamp = self["metadata.timestamp"] as? TimeInterval,
-              let version = self["metadata.version"] as? StoredVersion else {
+        guard let timestamp = self["metadata__timestamp"] as? TimeInterval,
+              let version = self["metadata__version"] as? StoredVersion else {
             return nil
         }
         
@@ -211,9 +217,9 @@ extension CKRecord {
         
         let valueTree = ValueTree(storedType: recordType, metadata: metadata)
         for key in allKeys() {
-            if key.contains(".metadata.") { continue }
+            if key.contains("__metadata__") { continue }
             
-            let propertyTypeKey = key + ".metadata.propertyType"
+            let propertyTypeKey = key + "__metadata__propertyType"
             guard
                 let value = self[key],
                 let propertyTypeInt = self[propertyTypeKey] as? Int,
@@ -221,7 +227,7 @@ extension CKRecord {
                 continue
             }
             
-            let primitiveTypeKey = key + ".metadata.primitiveType"
+            let primitiveTypeKey = key + "__metadata__primitiveType"
             let primitiveTypeInt = self[primitiveTypeKey] as? Int
             let primitiveType = primitiveTypeInt != nil ? PrimitiveType(rawValue: primitiveTypeInt!) : nil
             
