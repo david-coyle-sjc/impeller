@@ -29,14 +29,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         sync()
     }
     
-    @IBAction func sync() {
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        let backgroundTask = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+        sync { error in
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+        }
+    }
+    
+    @IBAction func sync(_ sender: Any?) {
+        sync()
+    }
+    
+    func sync(completionHandler completion: CompletionHandler? = nil) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         exchange.exchange { error in
+            if let error = error as? CKError, error.code == .notAuthenticated {
+                let alert = UIAlertController(title: "Sign In to iCloud Drive", message: "You need to be signed in to iCloud, and have iCloud Drive active, in order to use Listless. Sign In via the Settings app.", preferredStyle: .alert)
+                self.window!.rootViewController!.present(alert, animated: true, completion: nil)
+            }
+            
             if let error = error {
                 print("Error during exchange: \(error)")
             }
             else {
                 self.updateTaskList()
             }
+            
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            completion?(error)
         }
     }
     

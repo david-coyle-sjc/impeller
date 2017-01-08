@@ -30,4 +30,13 @@ class TaskViewController: UIViewController {
             task.tagList = newList
         }
     }
+    
+    @IBAction func cancel(_ sender: Any) {
+        task = nil
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func save(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
 }
