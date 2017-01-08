@@ -39,7 +39,16 @@ class CloudKitTests: XCTestCase {
         }
         self.waitForExpectations(timeout: 5.0)
     }
- 
+    
+    func performExchange(for exchange: Exchange) {
+        let expectation = self.expectation(description: "exchange")
+        exchange.exchange { error in
+            XCTAssertNil(error)
+            expectation.fulfill()
+        }
+        self.waitForExpectations(timeout: 5.0)
+    }
+    
     func testOneWayExchange() {
         var person = Person()
         person.name = "Bob"
@@ -47,26 +56,26 @@ class CloudKitTests: XCTestCase {
         person.tags = ["friends"]
         localRepository1.save(&person)
         
-        // Upload
-        var expectation = self.expectation(description: "exchange1")
-        exchange1.exchange { error in
-            XCTAssertNil(error)
-            expectation.fulfill()
-        }
-        self.waitForExpectations(timeout: 5.0)
-        
-        // Download
-        expectation = self.expectation(description: "exchange2")
-        exchange2.exchange { error in
-            XCTAssertNil(error)
-            expectation.fulfill()
-        }
-        self.waitForExpectations(timeout: 5.0)
+        performExchange(for: exchange1)
+        performExchange(for: exchange2)
         
         let personInRepository2:Person = localRepository2.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)!
         XCTAssertEqual(personInRepository2.metadata, person.metadata)
         XCTAssertEqual(personInRepository2.name, person.name)
         XCTAssertEqual(personInRepository2.age, person.age)
         XCTAssertEqual(personInRepository2.tags, person.tags)
+    }
+    
+    func testExchangeWithChildren() {
+        var parent = Parent()
+        parent.children = [Child()]
+        parent.child.age = 30
+        localRepository1.save(&parent)
+        
+        performExchange(for: exchange1)
+        performExchange(for: exchange2)
+        
+        let parentInRep2:Parent = localRepository2.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)!
+        XCTAssertEqual(parentInRep2.child.age, 30)
     }
 }
