@@ -9,7 +9,7 @@
 import Foundation
 import Impeller
 
-struct Task: Storable {
+struct Task: Storable, Equatable {
     static var storedType: StoredType { return "Task" }
     
     var metadata = Metadata()
@@ -33,5 +33,9 @@ struct Task: Storable {
     
     enum Key: String {
         case text, tagList, isComplete
+    }
+    
+    static func == (left: Task, right: Task) -> Bool {
+        return left.text == right.text && left.tagList == right.tagList && left.isComplete == right.isComplete
     }
 }

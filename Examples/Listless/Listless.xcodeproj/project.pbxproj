@@ -20,7 +20,6 @@
 		078A95931E213AB200FD81B0 /* TaskList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078A95921E213AB200FD81B0 /* TaskList.swift */; };
 		078A95951E213DD300FD81B0 /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078A95941E213DD300FD81B0 /* TaskCell.swift */; };
 		078A95971E21426400FD81B0 /* TagList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078A95961E21426400FD81B0 /* TagList.swift */; };
-		078A95991E21436100FD81B0 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078A95981E21436100FD81B0 /* Tag.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,7 +90,6 @@
 		078A95921E213AB200FD81B0 /* TaskList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskList.swift; sourceTree = "<group>"; };
 		078A95941E213DD300FD81B0 /* TaskCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
 		078A95961E21426400FD81B0 /* TagList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TagList.swift; sourceTree = "<group>"; };
-		078A95981E21436100FD81B0 /* Tag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +105,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0725AB3E1E2255CA00CE6F55 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				078A958C1E21347700FD81B0 /* Task.swift */,
+				078A95921E213AB200FD81B0 /* TaskList.swift */,
+				078A95961E21426400FD81B0 /* TagList.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		078A95561E2132D400FD81B0 = {
 			isa = PBXGroup;
 			children = (
@@ -129,11 +137,8 @@
 			isa = PBXGroup;
 			children = (
 				078A95881E21339600FD81B0 /* Listless.entitlements */,
+				0725AB3E1E2255CA00CE6F55 /* Model */,
 				078A95621E2132D400FD81B0 /* AppDelegate.swift */,
-				078A958C1E21347700FD81B0 /* Task.swift */,
-				078A95981E21436100FD81B0 /* Tag.swift */,
-				078A95961E21426400FD81B0 /* TagList.swift */,
-				078A95921E213AB200FD81B0 /* TaskList.swift */,
 				078A958E1E2137D100FD81B0 /* TasksViewController.swift */,
 				078A95941E213DD300FD81B0 /* TaskCell.swift */,
 				078A95901E213A2E00FD81B0 /* TaskViewController.swift */,
@@ -284,7 +289,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				078A95991E21436100FD81B0 /* Tag.swift in Sources */,
 				078A958D1E21347700FD81B0 /* Task.swift in Sources */,
 				078A95951E213DD300FD81B0 /* TaskCell.swift in Sources */,
 				078A95971E21426400FD81B0 /* TagList.swift in Sources */,

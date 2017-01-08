@@ -23,7 +23,7 @@
                                 <rect key="frame" x="0.0" y="28" width="375" height="75"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="apG-Fv-M5X" id="UId-IC-7hw">
-                                    <rect key="frame" x="0.0" y="0.0" width="336" height="74"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="336" height="74.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="tag" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="icm-YJ-l1q">
@@ -59,7 +59,18 @@
                             <outlet property="delegate" destination="wBy-VZ-pm3" id="R3H-u1-eik"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="cNN-8l-bjq"/>
+                    <navigationItem key="navigationItem" title="Root View Controller" id="cNN-8l-bjq">
+                        <barButtonItem key="leftBarButtonItem" systemItem="refresh" id="3yR-XU-cWt">
+                            <connections>
+                                <action selector="sync" destination="0mN-xj-ddD" id="E5X-Y1-SaU"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="8ks-wd-lya">
+                            <connections>
+                                <action selector="add" destination="0mN-xj-ddD" id="Rdb-AH-SFL"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0mN-xj-ddD" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

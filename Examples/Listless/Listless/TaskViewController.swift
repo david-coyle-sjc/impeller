@@ -21,4 +21,13 @@ class TaskViewController: UIViewController {
         tagsTextField.text = task.tagList.asString
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        task.text = contentTextView.text
+        
+        let newList = TagList(fromText: tagsTextField.text ?? "")
+        if (task.tagList != newList) {
+            task.tagList = newList
+        }
+    }
 }
