@@ -21,7 +21,8 @@ struct TagList: Storable, Equatable {
     init() {}
     
     init(fromText text:String) {
-        tags = text.characters.split { $0 == " " }.map { String($0) }.filter { $0.characters.count > 0 }
+        let newTags = text.characters.split { $0 == " " }.map { String($0) }.filter { $0.characters.count > 0 }
+        tags = Array(Set(newTags)).sorted()
     }
     
     init?(withRepository repository:SourceRepository) {
