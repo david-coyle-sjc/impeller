@@ -23,6 +23,9 @@ class TaskViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        guard task != nil else { return }
+        
         task.text = contentTextView.text
         
         let newList = TagList(fromText: tagsTextField.text ?? "")

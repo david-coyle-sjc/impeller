@@ -16,6 +16,12 @@ class TasksViewController: UITableViewController {
         }
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 75
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
@@ -47,7 +53,7 @@ class TasksViewController: UITableViewController {
         tableView.selectRow(at: path, animated: true, scrollPosition: .none)
         performSegue(withIdentifier: "toTask", sender: self)
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return taskList?.tasks.count ?? 0
     }
@@ -57,8 +63,26 @@ class TasksViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "taskCell", for: indexPath) as! TaskCell
         cell.contentLabel.text = task.text
         cell.tagsLabel.text = task.tagList.asString
+        cell.accessoryType = task.isComplete ? .checkmark : .none
         return cell
     }
+    
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let task = taskList!.tasks[indexPath.row]
+        let title = task.isComplete ? "Mark Incomplete" : "Mark Complete"
+        let action = UITableViewRowAction(style: .normal, title: title) { action, indexPath in
+            var newTask = task
+            newTask.isComplete = !task.isComplete
+            self.taskList!.tasks[indexPath.row] = newTask
+            
+            // Save and sync
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.localRepository.save(&newTask)
+            appDelegate.sync()
+        }
+        return [action]
+    }
+
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toTask" {
