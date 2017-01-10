@@ -31,8 +31,8 @@ public class MemoryRepository: Repository, Exchangable {
     private var valueTreesByKey = [String:ValueTree]()
     private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storedType: "")
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
-    private var saveContext: Any?
-    private var saveTimestamp = Date.distantPast.timeIntervalSinceReferenceDate
+    private var commitContext: Any?
+    private var commitTimestamp = Date.distantPast.timeIntervalSinceReferenceDate
 
     public init() {}
     
@@ -97,7 +97,7 @@ public class MemoryRepository: Repository, Exchangable {
         }
     }
     
-    public func read<T:Storable>(_ key:String) -> T?? {
+    public func read<T:Storable>(optionalFor key:String) -> T?? {
         if  let property = currentTreeProperty(key),
             let optionalReference = property.asOptionalValueTreeReference(),
             let reference = optionalReference {
@@ -147,7 +147,7 @@ public class MemoryRepository: Repository, Exchangable {
         // Recurse to store the value's data
         transaction {
             currentTreeReference = reference
-            storeValueAndDescendents(of: &value)
+            writeValueAndDescendents(of: &value)
         }
     }
     
@@ -167,7 +167,7 @@ public class MemoryRepository: Repository, Exchangable {
         transaction {
             currentTreeReference = reference
             var updatedValue = value!
-            storeValueAndDescendents(of: &updatedValue)
+            writeValueAndDescendents(of: &updatedValue)
             value = updatedValue
         }
     }
@@ -186,23 +186,23 @@ public class MemoryRepository: Repository, Exchangable {
         for (var value, reference) in zip(values, references) {
             transaction {
                 currentTreeReference = reference
-                storeValueAndDescendents(of: &value)
+                writeValueAndDescendents(of: &value)
                 updatedValues.append(value)
             }
         }
         values = updatedValues
     }
     
-    /// Resolves conflicts and saves, and sets the value on out to resolved value.
-    public func save<T:Storable>(_ value: inout T, context: Any? = nil) {
-        saveContext = context
-        saveTimestamp = Date.timeIntervalSinceReferenceDate
+    /// Resolves conflicts and commits, and sets the value on out to resolved value.
+    public func commit<T:Storable>(_ value: inout T, context: Any? = nil) {
+        commitContext = context
+        commitTimestamp = Date.timeIntervalSinceReferenceDate
         identifiersOfUnchanged = Set<UniqueIdentifier>()
         currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
-        storeValueAndDescendents(of: &value)
+        writeValueAndDescendents(of: &value)
     }
     
-    func storeValueAndDescendents<T:Storable>(of value: inout T) {
+    func writeValueAndDescendents<T:Storable>(of value: inout T) {
         let storeValue:T? = fetchValue(identifiedBy: value.metadata.uniqueIdentifier)
         if storeValue == nil {
             valueTreesByKey[currentValueTreeKey] = ValueTree(storedType: T.storedType, metadata: value.metadata)
@@ -210,28 +210,28 @@ public class MemoryRepository: Repository, Exchangable {
         
         var resolvedValue:T
         var resolvedVersion:StoredVersion = 0
-        let resolvedTimestamp = saveTimestamp
+        let resolvedTimestamp = commitTimestamp
         var changed = true
         
         if storeValue == nil {
-            // First save
+            // First commit
             resolvedValue = value
             resolvedVersion = 0
         }
         else if storeValue!.isRepositoryEquivalent(to: value) && value.metadata == storeValue!.metadata {
-            // Values unchanged from store. Don't save data again
+            // Values unchanged from store. Don't commit data again
             resolvedValue = value
             resolvedVersion = value.metadata.version
             changed = false
         }
         else if value.metadata.version == storeValue!.metadata.version {
-            // Store has not changed since the base value was taken, so just save the new value directly
+            // Store has not changed since the base value was taken, so just commit the new value directly
             resolvedValue = value
             resolvedVersion = value.metadata.version + 1
         }
         else {
             // Conflict with store. Resolve.
-            resolvedValue = value.resolvedValue(forConflictWith: storeValue!, context: saveContext)
+            resolvedValue = value.resolvedValue(forConflictWith: storeValue!, context: commitContext)
             resolvedVersion = max(value.metadata.version, storeValue!.metadata.version) + 1
         }
         

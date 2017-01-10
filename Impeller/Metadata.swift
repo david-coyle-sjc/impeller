@@ -17,7 +17,7 @@ public struct Metadata: Equatable {
         
     public let uniqueIdentifier: UniqueIdentifier
     public internal(set) var timestamp: TimeInterval // When stored
-    var version: StoredVersion = 0
+    internal var version: StoredVersion = 0
     
     public init(uniqueIdentifier: UniqueIdentifier = UUID().uuidString) {
         self.uniqueIdentifier = uniqueIdentifier

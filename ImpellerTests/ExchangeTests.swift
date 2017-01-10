@@ -26,7 +26,7 @@ class ExchangeTests: XCTestCase {
         var person = Person()
         person.name = "Bob"
         person.age = 10
-        repository1.save(&person)
+        repository1.commit(&person)
 
         let expectation = self.expectation(description: "exchange")
         exchange.exchange { error in
@@ -44,7 +44,7 @@ class ExchangeTests: XCTestCase {
         var personInRepository1 = Person()
         personInRepository1.name = "Bob"
         personInRepository1.age = 10
-        repository1.save(&personInRepository1)
+        repository1.commit(&personInRepository1)
         
         let expectation1 = self.expectation(description: "exchange1")
         exchange.exchange { error in
@@ -55,7 +55,7 @@ class ExchangeTests: XCTestCase {
         
         var personInRepository2:Person = repository2.fetchValue(identifiedBy: personInRepository1.metadata.uniqueIdentifier)!
         personInRepository2.name = "Tom"
-        repository2.save(&personInRepository2)
+        repository2.commit(&personInRepository2)
         
         let expectation2 = self.expectation(description: "exchange2")
         exchange.exchange { error in
@@ -74,12 +74,12 @@ class ExchangeTests: XCTestCase {
         var personInRepository1 = Person()
         personInRepository1.name = "Bob"
         personInRepository1.age = 10
-        repository1.save(&personInRepository1)
+        repository1.commit(&personInRepository1)
         
         var personInRepository2 = Person()
         personInRepository2.name = "Tom"
         personInRepository2.age = 20
-        repository2.save(&personInRepository2)
+        repository2.commit(&personInRepository2)
         
         let expectation = self.expectation(description: "exchange")
         exchange.exchange { error in
@@ -109,14 +109,14 @@ class ExchangeTests: XCTestCase {
         var personInRepository1 = Person()
         personInRepository1.name = "Bob"
         personInRepository1.age = 10
-        repository1.save(&personInRepository1)
+        repository1.commit(&personInRepository1)
         
         var personInRepository2 = Person()
         let newMetadata = Metadata(uniqueIdentifier: personInRepository1.metadata.uniqueIdentifier)
         personInRepository2.metadata = newMetadata
         personInRepository2.name = "Tom"
         personInRepository2.age = 20
-        repository2.save(&personInRepository2)
+        repository2.commit(&personInRepository2)
         
         let expectation = self.expectation(description: "exchange")
         exchange.exchange { error in
@@ -140,7 +140,7 @@ class ExchangeTests: XCTestCase {
         var personInRepository1 = Person()
         personInRepository1.name = "Bob"
         personInRepository1.age = 10
-        repository1.save(&personInRepository1)
+        repository1.commit(&personInRepository1)
         
         XCTAssertNil(exchange.cursor(forExchangableIdentifiedBy: repository1.uniqueIdentifier))
         XCTAssertNil(exchange.cursor(forExchangableIdentifiedBy: repository2.uniqueIdentifier))

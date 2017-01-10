@@ -15,7 +15,7 @@ public protocol ReadRepository: class {
     func read<T:StorablePrimitive>(optionalFor key:String) -> T??
     func read<T:StorablePrimitive>(_ key:String) -> [T]?
     func read<T:Storable>(_ key:String) -> T?
-    func read<T:Storable>(_ key:String) -> T??
+    func read<T:Storable>(optionalFor key:String) -> T??
     func read<T:Storable>(_ key:String) -> [T]?
     
 }
@@ -23,7 +23,7 @@ public protocol ReadRepository: class {
 
 public protocol WriteRepository: class {
     
-    func save<T:Storable>(_ value: inout T, context: Any?)
+    func commit<T:Storable>(_ value: inout T, context: Any?)
 
     func write<T:StorablePrimitive>(_ value:T, for key:String)
     func write<T:StorablePrimitive>(_ optionalValue:T?, for key:String)

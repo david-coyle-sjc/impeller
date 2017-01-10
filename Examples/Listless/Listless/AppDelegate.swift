@@ -71,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Create a new task list if one doesn't exist
             var newTaskList = TaskList()
             newTaskList.metadata = Metadata(uniqueIdentifier: "MainList")
-            self.localRepository.save(&newTaskList)
+            self.localRepository.commit(&newTaskList)
             self.tasksViewController.taskList = newTaskList
             
             // Schedule a sync to push this new list to the cloud

@@ -37,7 +37,7 @@ public class Exchange {
         return cursorsByExchangableIdentifier[identifier]
     }
     
-    func save(_ cursor: Cursor?, forExchangableIdentifiedBy identifier: UniqueIdentifier) {
+    func commit(_ cursor: Cursor?, forExchangableIdentifiedBy identifier: UniqueIdentifier) {
         cursorsByExchangableIdentifier[identifier] = cursor
     }
     
@@ -77,11 +77,11 @@ public class Exchange {
                     pullGroup.enter()
                 }
                 
-                // Save cursor if all stores successfully assimilate data
+                // Save cursor if all repositories successfully assimilate data
                 pullGroup.notify(queue: DispatchQueue.main) {
                     defer { group.leave() }
                     guard returnError == nil else { return }
-                    self.save(newCursor, forExchangableIdentifiedBy: uniqueIdentifier)
+                    self.commit(newCursor, forExchangableIdentifiedBy: uniqueIdentifier)
                 }
                 
                 for e2 in self.exchangables {

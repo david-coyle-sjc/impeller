@@ -13,10 +13,10 @@ final class ValueTreeBuilder<T:Storable> : WriteRepository {
     init(_ storable:T) {
         valueTree = ValueTree(storedType: T.storedType, metadata: storable.metadata)
         self.storable = storable
-        self.save(&self.storable)
+        self.commit(&self.storable)
     }
     
-    func save<T:Storable>(_ value: inout T, context: Any? = nil) {
+    func commit<T:Storable>(_ value: inout T, context: Any? = nil) {
         storable.write(in: self)
     }
     

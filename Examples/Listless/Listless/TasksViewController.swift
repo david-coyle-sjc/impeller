@@ -30,7 +30,7 @@ class TasksViewController: UITableViewController {
             var task = taskController.task {
             // Save and sync
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.localRepository.save(&task)
+            appDelegate.localRepository.commit(&task)
             appDelegate.sync()
             
             // In case the edited task hss moved due to a sync, use the identifier to find the right index
@@ -47,7 +47,7 @@ class TasksViewController: UITableViewController {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let newTask = Task()
         taskList!.tasks.insert(newTask, at: 0)
-        appDelegate.localRepository.save(&taskList!)
+        appDelegate.localRepository.commit(&taskList!)
         
         let path = IndexPath(row: 0, section: 0)
         tableView.selectRow(at: path, animated: true, scrollPosition: .none)
@@ -77,7 +77,7 @@ class TasksViewController: UITableViewController {
             
             // Save and sync
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.localRepository.save(&newTask)
+            appDelegate.localRepository.commit(&newTask)
             appDelegate.sync()
         }
         return [action]

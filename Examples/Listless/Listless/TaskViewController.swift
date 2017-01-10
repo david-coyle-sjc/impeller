@@ -39,7 +39,7 @@ class TaskViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func save(_ sender: Any) {
+    @IBAction func commit(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
 }

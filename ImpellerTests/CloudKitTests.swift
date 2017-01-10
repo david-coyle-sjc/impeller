@@ -54,7 +54,7 @@ class CloudKitTests: XCTestCase {
         person.name = "Bob"
         person.age = 10
         person.tags = ["friends"]
-        localRepository1.save(&person)
+        localRepository1.commit(&person)
         
         performExchange(for: exchange1)
         performExchange(for: exchange2)
@@ -70,7 +70,7 @@ class CloudKitTests: XCTestCase {
         var parent = Parent()
         parent.children = [Child()]
         parent.child.age = 30
-        localRepository1.save(&parent)
+        localRepository1.commit(&parent)
         
         performExchange(for: exchange1)
         performExchange(for: exchange2)
