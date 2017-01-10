@@ -19,16 +19,16 @@ struct Task: Storable, Equatable {
     
     init() {}
     
-    init?(withRepository repository:SourceRepository) {
-        text = repository.value(for: Key.text.rawValue)!
-        tagList = repository.value(for: Key.tagList.rawValue)!
-        isComplete = repository.value(for: Key.isComplete.rawValue)!
+    init?(readingFrom repository:ReadRepository) {
+        text = repository.read(Key.text.rawValue)!
+        tagList = repository.read(Key.tagList.rawValue)!
+        isComplete = repository.read(Key.isComplete.rawValue)!
     }
     
-    mutating func store(in repository:SinkRepository) {
-        repository.store(text, for: Key.text.rawValue)
-        repository.store(&tagList, for: Key.tagList.rawValue)
-        repository.store(isComplete, for: Key.isComplete.rawValue)
+    mutating func write(in repository:WriteRepository) {
+        repository.write(text, for: Key.text.rawValue)
+        repository.write(&tagList, for: Key.tagList.rawValue)
+        repository.write(isComplete, for: Key.isComplete.rawValue)
     }
     
     enum Key: String {

@@ -6,30 +6,30 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-public typealias Repository = SourceRepository & SinkRepository
+public typealias Repository = ReadRepository & WriteRepository
 
 
-public protocol SourceRepository: class {
+public protocol ReadRepository: class {
     
-    func value<T:StorablePrimitive>(for key:String) -> T?
-    func optionalValue<T:StorablePrimitive>(for key:String) -> T??
-    func values<T:StorablePrimitive>(for key:String) -> [T]?
-    func value<T:Storable>(for key:String) -> T?
-    func optionalValue<T:Storable>(for key:String) -> T??
-    func values<T:Storable>(for key:String) -> [T]?
+    func read<T:StorablePrimitive>(_ key:String) -> T?
+    func read<T:StorablePrimitive>(optionalFor key:String) -> T??
+    func read<T:StorablePrimitive>(_ key:String) -> [T]?
+    func read<T:Storable>(_ key:String) -> T?
+    func read<T:Storable>(_ key:String) -> T??
+    func read<T:Storable>(_ key:String) -> [T]?
     
 }
 
 
-public protocol SinkRepository: class {
+public protocol WriteRepository: class {
     
     func save<T:Storable>(_ value: inout T, context: Any?)
 
-    func store<T:StorablePrimitive>(_ value:T, for key:String)
-    func store<T:StorablePrimitive>(_ optionalValue:T?, for key:String)
-    func store<T:StorablePrimitive>(_ values:[T], for key:String)
-    func store<T:Storable>(_ value:inout T, for key:String)
-    func store<T:Storable>(_ optionalValue:inout T?, for key:String)
-    func store<T:Storable>(_ values:inout [T], for key:String)
+    func write<T:StorablePrimitive>(_ value:T, for key:String)
+    func write<T:StorablePrimitive>(_ optionalValue:T?, for key:String)
+    func write<T:StorablePrimitive>(_ values:[T], for key:String)
+    func write<T:Storable>(_ value:inout T, for key:String)
+    func write<T:Storable>(_ optionalValue:inout T?, for key:String)
+    func write<T:Storable>(_ values:inout [T], for key:String)
     
 }

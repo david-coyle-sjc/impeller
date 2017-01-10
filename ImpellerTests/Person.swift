@@ -19,16 +19,16 @@ struct Person: Storable {
     
     init() {}
     
-    init?(withRepository repository:SourceRepository) {
-        name = repository.value(for: "name")!
-        age = repository.optionalValue(for: "age")!
-        tags = repository.values(for: "tags")!
+    init?(readingFrom repository:ReadRepository) {
+        name = repository.read("name")!
+        age = repository.read(optionalFor: "age")!
+        tags = repository.read("tags")!
     }
     
-    func store(in repository:SinkRepository) {
-        repository.store(name, for: "name")
-        repository.store(age, for: "age")
-        repository.store(tags, for: "tags")
+    func write(in repository:WriteRepository) {
+        repository.write(name, for: "name")
+        repository.write(age, for: "age")
+        repository.write(tags, for: "tags")
     }
     
     static func == (left: Person, right: Person) -> Bool {

@@ -13,8 +13,8 @@ public protocol Storable {
     var metadata: Metadata { get set }
     static var storedType: StoredType { get }
     
-    init?(withRepository repository:SourceRepository)
-    mutating func store(in repository:SinkRepository)
+    init?(readingFrom repository:ReadRepository)
+    mutating func write(in repository:WriteRepository)
     
     func resolvedValue(forConflictWith newValue:Storable, context: Any?) -> Self
 }

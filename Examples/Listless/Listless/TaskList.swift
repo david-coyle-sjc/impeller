@@ -17,12 +17,12 @@ struct TaskList: Storable, Equatable {
     
     init() {}
     
-    init?(withRepository repository:SourceRepository) {
-        tasks = repository.values(for: Key.tasks.rawValue)!
+    init?(readingFrom repository:ReadRepository) {
+        tasks = repository.read(Key.tasks.rawValue)!
     }
     
-    mutating func store(in repository:SinkRepository) {
-        repository.store(&tasks, for: Key.tasks.rawValue)
+    mutating func write(in repository:WriteRepository) {
+        repository.write(&tasks, for: Key.tasks.rawValue)
     }
     
     enum Key: String {

@@ -18,13 +18,13 @@ struct Parent: Storable {
 
     init() {}
     
-    init?(withRepository repository:SourceRepository) {
-        child = repository.value(for: "child")!
-        children = repository.values(for: "children")!
+    init?(readingFrom repository:ReadRepository) {
+        child = repository.read("child")!
+        children = repository.read("children")!
     }
     
-    mutating func store(in repository:SinkRepository) {
-        repository.store(&child, for: "child")
-        repository.store(&children, for: "children")
+    mutating func write(in repository:WriteRepository) {
+        repository.write(&child, for: "child")
+        repository.write(&children, for: "children")
     }
 }

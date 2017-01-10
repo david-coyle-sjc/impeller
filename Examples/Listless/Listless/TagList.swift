@@ -25,12 +25,12 @@ struct TagList: Storable, Equatable {
         tags = Array(Set(newTags)).sorted()
     }
     
-    init?(withRepository repository:SourceRepository) {
-        tags = repository.values(for: Key.tags.rawValue)!
+    init?(readingFrom repository:ReadRepository) {
+        tags = repository.read(Key.tags.rawValue)!
     }
     
-    mutating func store(in repository:SinkRepository) {
-        repository.store(tags, for: Key.tags.rawValue)
+    mutating func write(in repository:WriteRepository) {
+        repository.write(tags, for: Key.tags.rawValue)
     }
     
     enum Key: String {

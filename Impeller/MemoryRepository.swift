@@ -52,7 +52,7 @@ public class MemoryRepository: Repository, Exchangable {
         return valueTreesByKey[currentValueTreeKey]?.get(key)
     }
     
-    public func value<T:StorablePrimitive>(for key:String) -> T? {
+    public func read<T:StorablePrimitive>(_ key:String) -> T? {
         if  let property = currentTreeProperty(key),
             let primitive = property.asPrimitive() {
             return T(primitive)
@@ -62,7 +62,7 @@ public class MemoryRepository: Repository, Exchangable {
         }
     }
     
-    public func optionalValue<T:StorablePrimitive>(for key:String) -> T?? {
+    public func read<T:StorablePrimitive>(optionalFor key:String) -> T?? {
         if  let property = currentTreeProperty(key),
             let optionalPrimitive = property.asOptionalPrimitive() {
             if let primitive = optionalPrimitive {
@@ -77,7 +77,7 @@ public class MemoryRepository: Repository, Exchangable {
         }
     }
     
-    public func values<T:StorablePrimitive>(for key:String) -> [T]? {
+    public func read<T:StorablePrimitive>(_ key:String) -> [T]? {
         if  let property = currentTreeProperty(key),
             let primitives = property.asPrimitives() {
             return primitives.flatMap { T($0) }
@@ -87,7 +87,7 @@ public class MemoryRepository: Repository, Exchangable {
         }
     }
     
-    public func value<T:Storable>(for key:String) -> T? {
+    public func read<T:Storable>(_ key:String) -> T? {
         if  let property = currentTreeProperty(key),
             let reference = property.asValueTreeReference() {
             return fetchValue(identifiedBy: reference.uniqueIdentifier)
@@ -97,7 +97,7 @@ public class MemoryRepository: Repository, Exchangable {
         }
     }
     
-    public func optionalValue<T:Storable>(for key:String) -> T?? {
+    public func read<T:Storable>(_ key:String) -> T?? {
         if  let property = currentTreeProperty(key),
             let optionalReference = property.asOptionalValueTreeReference(),
             let reference = optionalReference {
@@ -108,7 +108,7 @@ public class MemoryRepository: Repository, Exchangable {
         }
     }
     
-    public func values<T:Storable>(for key:String) -> [T]? {
+    public func read<T:Storable>(_ key:String) -> [T]? {
         if  let property = currentTreeProperty(key),
             let references = property.asValueTreeReferences() {
             return references.map { fetchValue(identifiedBy: $0.uniqueIdentifier)! }
@@ -118,28 +118,28 @@ public class MemoryRepository: Repository, Exchangable {
         }
     }
     
-    public func store<T:StorablePrimitive>(_ value:T, for key:String) {
+    public func write<T:StorablePrimitive>(_ value:T, for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
         let primitive = Primitive(value: value)
         let property: Property = .primitive(primitive!)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
-    public func store<T:StorablePrimitive>(_ value:T?, for key:String) {
+    public func write<T:StorablePrimitive>(_ value:T?, for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
         let primitive = value != nil ? Primitive(value: value!) : nil
         let property: Property = .optionalPrimitive(primitive)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
-    public func store<T:StorablePrimitive>(_ values:[T], for key:String) {
+    public func write<T:StorablePrimitive>(_ values:[T], for key:String) {
         guard !identifiersOfUnchanged.contains(currentTreeReference.uniqueIdentifier) else { return }
         let primitives = values.map { Primitive(value: $0)! }
         let property: Property = .primitives(primitives)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
     }
     
-    public func store<T:Storable>(_ value: inout T, for key:String) {
+    public func write<T:Storable>(_ value: inout T, for key:String) {
         let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
         let property: Property = .valueTreeReference(reference)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
@@ -153,7 +153,7 @@ public class MemoryRepository: Repository, Exchangable {
     
     // TODO: If nil is passed here, effectively all subtrees are deleted. Need some logic to handle that.
     // Perhaps we need to wait until we have parent pointers to do this well.
-    public func store<T:Storable>(_ value: inout T?, for key:String) {
+    public func write<T:Storable>(_ value: inout T?, for key:String) {
         var reference: ValueTreeReference!
         if let value = value {
             reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
@@ -173,7 +173,7 @@ public class MemoryRepository: Repository, Exchangable {
     }
     
     // TODO: Need to determine here which children have been excluded, and explicitly delete them
-    public func store<T:Storable>(_ values: inout [T], for key:String) {
+    public func write<T:Storable>(_ values: inout [T], for key:String) {
         let references = values.map {
             ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storedType: T.storedType)
         }
@@ -247,7 +247,7 @@ public class MemoryRepository: Repository, Exchangable {
         }
         
         // Always call store, even if unchanged, to check for changed descendents
-        resolvedValue.store(in: self)
+        resolvedValue.write(in: self)
         value = resolvedValue
     }
     
@@ -259,7 +259,7 @@ public class MemoryRepository: Repository, Exchangable {
                 return
             }
             
-            result = T.init(withRepository: self)
+            result = T.init(readingFrom: self)
             result?.metadata = valueTree.metadata
         }
         return result

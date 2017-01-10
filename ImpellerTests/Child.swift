@@ -17,12 +17,12 @@ struct Child: Storable {
         
     init() {}
     
-    init?(withRepository repository:SourceRepository) {
-        age = repository.value(for: "age")!
+    init?(readingFrom repository:ReadRepository) {
+        age = repository.read("age")!
     }
     
-    mutating func store(in repository:SinkRepository) {
-        repository.store(age, for: "age")
+    mutating func write(in repository:WriteRepository) {
+        repository.write(age, for: "age")
     }
     
     static func == (left: Child, right: Child) -> Bool {
