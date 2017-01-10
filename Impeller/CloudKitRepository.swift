@@ -29,16 +29,14 @@ public class CloudKitRepository: Exchangable {
     public let uniqueIdentifier: UniqueIdentifier
     private let database: CKDatabase
     private let zone: CKRecordZone
+    private let prepareZoneOperation: CKDatabaseOperation
     
     public init(withUniqueIdentifier identifier: UniqueIdentifier, cloudDatabase: CKDatabase) {
         self.uniqueIdentifier = identifier
         self.database = cloudDatabase
         self.zone = CKRecordZone(zoneName: uniqueIdentifier)
-        self.prepareZone()
-    }
-    
-    private func prepareZone() {
-        database.save(zone) { zone, error in }
+        self.prepareZoneOperation = CKModifyRecordZonesOperation(recordZonesToSave: [self.zone], recordZoneIDsToDelete: nil)
+        self.database.add(self.prepareZoneOperation)
     }
     
     public func removeZone(completionHandler completion:@escaping CompletionHandler) {
@@ -56,6 +54,7 @@ public class CloudKitRepository: Exchangable {
         options.previousServerChangeToken = token
         
         let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: [zone.zoneID], optionsByRecordZoneID: [zone.zoneID : options])
+        operation.addDependency(prepareZoneOperation)
         operation.fetchAllChanges = true
         operation.recordChangedBlock = { record in
             if let valueTree = record.asValueTree {
@@ -83,6 +82,7 @@ public class CloudKitRepository: Exchangable {
                 completion(nil, valueTrees, newCursor)
             }
         }
+        
         database.add(operation)
     }
     
@@ -90,6 +90,7 @@ public class CloudKitRepository: Exchangable {
         let valueTreesByRecordID = valueTrees.elementsByKey { $0.recordID(inZoneWithID: zone.zoneID) }
         let recordIDs = Array(valueTreesByRecordID.keys)
         let fetchOperation = CKFetchRecordsOperation(recordIDs: recordIDs)
+        fetchOperation.addDependency(prepareZoneOperation)
         fetchOperation.fetchRecordsCompletionBlock = { recordsByRecordID, error in
             // Only acceptable errors are partial errors where code is .unknownItem
             let ckError = error as! CKError?
