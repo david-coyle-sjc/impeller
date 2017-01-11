@@ -103,6 +103,7 @@
 		0737AB061DF9534300ABBA90 /* General.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = General.swift; sourceTree = "<group>"; };
 		0737AB081DF9537300ABBA90 /* Person.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Person.swift; sourceTree = "<group>"; };
 		073CB7CC1E02F29200E567D7 /* ValueTreeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValueTreeBuilder.swift; sourceTree = "<group>"; };
+		0744C5DC1E26B8A7005799E6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		077C8B5E1E01A80B0073B628 /* StorablePrimitive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorablePrimitive.swift; sourceTree = "<group>"; };
 		07C769981E0469920063CB4A /* ValueTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValueTree.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -217,6 +218,7 @@
 		0737AADA1DF9524D00ABBA90 = {
 			isa = PBXGroup;
 			children = (
+				0744C5DC1E26B8A7005799E6 /* README.md */,
 				0737AAE61DF9524D00ABBA90 /* Impeller */,
 				0737AAF11DF9524E00ABBA90 /* Impeller Tests */,
 				07251A431E21020100C2CD8C /* Networked Tests */,
@@ -782,6 +784,7 @@
 				07251A4C1E21020100C2CD8C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0728B7D91E1EBF8100CF9DA7 /* Build configuration list for PBXNativeTarget "Test Host" */ = {
 			isa = XCConfigurationList;
