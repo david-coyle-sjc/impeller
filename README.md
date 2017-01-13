@@ -187,6 +187,7 @@ In addition to the unexpected behaviors that come with using value types, there 
 - There is no need for reference counting or garbage collection, making cleanup much faster
 - Value types are copied when assigned or passed to a function, making data sharing much less likely
 - Value types can be passed between threads with little risk, because each thread gets a separate copy
+- There is no need to define complex deletion rules. Deletion is handled naturally by the ownership hierarchy of the `struct`s.
 
 #### Uniquing
 Uniquing
