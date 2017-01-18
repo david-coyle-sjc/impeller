@@ -203,11 +203,11 @@ A value store is quite a different beast to a store based on reference types (_e
 In addition to the unexpected behaviors that come with using value types, there are a number of welcome surprises. Here are a few of the advantages of using a value store:
 
 - Value types are often stored on the stack, and don't incur the cost of heap allocation and deallocation.
-- There is no need for reference counting or garbage collection, making cleanup much faster.
+- There is no need for reference counting or garbage collection, making creation and cleanup much faster.
 - Value types are copied when assigned or passed to a function, making data contention much less likely.
 - Value types can be passed between threads with little risk, because each thread gets a separate copy.
 - There is no need to define complex deletion rules. Deletion is handled naturally by the ownership hierarchy of the `struct`s.
-- Keeping a history of changes is as simply as keeping an array of root values. This is very useful for features such as undo.
+- Keeping a history of changes is as simple as keeping an array of root values. This is very useful for features such as undo.
 
 #### Uniquing
 
@@ -215,35 +215,61 @@ Uniquing is a feature of class-based frameworks like Core Data. It ensures that 
 
 In a value store, uniquing would make no sense, because every value gets copied numerous times. Creating a copy is as simple as assigning to a variable, or passing it to a function.
 
-At first, this may seem shocking to a seasoned Core Data developer, but it just requires a minor shift in expectations. When working with Impeller, you have to recognize that the copy of the value you are working with is not unique, that there may be other values representing the same stored entity, and that they may all be in different states. A value is temporal, and only influences other values when it is committed to a repository.
+At first, this may seem problematic to a seasoned Core Data developer, but it just requires a minor shift in expectations. When working with Impeller, you have to recognize that the copy of the value you are working with is not unique, that there may be other values representing the same stored entity, and that they may all be in different states. A value is temporal, and only influences other values when it is committed to a repository.
 
 #### Relationship Cycles
 
-When you develop a data model from `struct`s, you for _value trees_. A `struct` can contain other `struct`s, and the entirety forms a tree in memory. 
+When you develop a data model from `struct`s, you form _value trees_. A `struct` can contain other `struct`s, and the entirety forms a tree in memory. 
 
 Frameworks like Core Data are based around related entities, which can create arbitrary graphs. This is flexible, but has some downsides. For example, Core Data models form retain cycles which lead to memory leaks unless active steps are taken to break them (_e.g._ resetting the context).
 
 As mentioned early, `struct`s are stack types, and do not have any issues with retain cycles. They are cleaned up automatically when exiting a scope. The price paid for this is that Impeller cannot be used to directly model arbitrary graphs of data.
 
-With Impeller, you build your model out of one or more value trees, but if you need relationships between trees, you can mimic them using so-called _weak relationships_. A weak relationship simply involves storing the `uniqueIdentifier` of another object in a property. When you need to use the related object, you simply attempt to fetch it from the store. 
+With Impeller, you build your model out of one or more value trees, but if you need relationships between trees, you can mimic them using so-called _weak relationships_. A weak relationship simply involves storing the `uniqueIdentifier` of another object in a property. When you need to use the related object, you just fetch it from the store.
 
 While it is not possible to create cyclic graphs of related values, you can use weak relationships to achieve very similar behavior. In this respect, using Impeller need not be so different to other frameworks, and the relationship cycles — where they exist — should be much more evident.
 
 #### Copying Sub-Values
 
-Copying a sub-value does not copy the stored data
-need to be aware how you created a value, and what it corresponds to in the store
-Changing a copy of a subvalue also changes the stored value that the tree corresponds to
+Storable `struct`s can contain other storable values, forming a tree, but there is nothing to stop you from copying a sub-value into a different variable. For example
+
+    struct Child: Storable {
+        ...
+    }
+    
+    struct Person: Storable {
+        ...
+        var child: Child
+    }
+    
+    var dave = Person()
+    var child = dave.child
+    child.name = "Tom"
+    repository.commit(&child)
+
+In this code, the `Child` of the value `dave` gets copied into a separate variable, altered, and then committed. It is important to realize that — as far as the repository is concerned — this is the same as changing the `child` property of `dave` directly and committing that. The two copies of the `Child` have the same `uniqueIdentifier`, and represent the same data in the repository. 
+
+If the intention was to make a new, independent child, it would be necessary to reset the metadata, like this
+
+    var dave = Person()
+    var child = dave.child
+    child.metadata = Metadata()
+    child.name = "Tom"
+    repository.commit(&child)
+
+This code would create a whole new `Child` value in the repository, which would be unrelated to the original `Person`.
 
 #### Recursive Trees
 
 In theory you can create recursive trees with `struct`s and `protocol`s. For example, it would be possible to create an `AnyStorable` `struct` that forwards all function calls to a wrapped value of a concrete `Storable` type. 
 
-At this point, is unclear if Impeller can be made to work with such types. It is an area of investigation.
+At this point, it is unclear if Impeller can be made to work with such types. It is an area of investigation.
 
 ## Progress
 
 ### State of the Union
+
+The project is still in a very early stage, and not much more than a concept prototype. The following features are in place:
 
 - In-memory repository
 - CloudKit repository
@@ -251,6 +277,8 @@ At this point, is unclear if Impeller can be made to work with such types. It is
 - Single timestamp for each `Storable` value. Used in exchanging.
 
 ### Imminent Projects
+
+There are many plans for improving on this. Here are some of the projects that have a high priority. If you would like to contribute, fork the project, and issue pull requests, or get involved in issue discussion.
 
 - Atomic persistence of in-memory repository (_e.g._ JSON, Property List)
 - SQLite repository
