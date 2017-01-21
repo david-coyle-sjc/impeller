@@ -1,4 +1,4 @@
-![Impeller: A Distributed Value Store in Swift](https://image.png)
+![Impeller: A Distributed Value Store in Swift](https://cloud.githubusercontent.com/assets/77312/22173713/77d11400-dfcb-11e6-8790-3d39359ed0d7.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
@@ -9,7 +9,9 @@ With Impeller, you compose a data model from Swift value types (`struct`s), and 
 
 At this juncture, Impeller is largely experimental. It evolves rapidly, and — much like Swift itself — there is no attempt made to sustain backward compatibility. It is not currently recommended for production projects.
 
-## Objectives
+## Introduction
+
+### Objectives
 
 Impeller was inspired by the notion that a persistent store, in the vein of Core Data and Realm, could be based on value types, rather than the usual reference types (classes). Additionally, such a store could be designed from day one to work globally, across devices, much like a DVCS such as Git.
 
@@ -20,6 +22,18 @@ Perhaps even more important than performance, value types offer greater safety g
 While the initial objective for Impeller is to develop a working value store that syncs, the longer term goal is much more ambitious: Impeller should evolve into an abstraction that can push and pull values from a wide variety of backends (_e.g_ CloudKit, SQL databases), and populate arbitrary frontend modelling frameworks (_e.g._ Core Data, Realm). In effect, middleware that couples any supported client framework with any supported cloud service. 
 
 If achieved, this would facilitate much simpler migration between services and frameworks, as well as heterogenous combinations which currently require a large investment of time and effort to realize. For example, imagine an iOS app based on Core Data syncing automatically with Apple's CloudKit, which in turn exchanges data with an Android app utilizing SQlite storage.
+
+### Philosophy
+
+Frameworks like Core Data are mature, and very extensive. To really master such a framework takes years. In return, it gives you an easy way to begin, and takes care of a lot details for you. Caching data, merging conflicts, relationship maintenance, and deletion propagation are all features that help you from day one, and which you can generally forget are operating on your behalf.
+
+But there is a downside to having so much _magic_ in a framework, and you usually encounter that as soon as a project goes beyond the basics. At some point, you realize you don't need the data to be cached, or retain cycles are causing objects to hang around that you would like to be deallocated, or data fetches are scaling badly. The _magic_ that was originally working in your favor is now technical debt, and you start to have to pay it back. You have to learn more and more about how the framework is working internally, often reverse engineering or experimenting to understand private implementation details. The short term gain of not having to know the details demands that you learn those details — and more — in the long term.
+
+This philosophical difference is evident in web frameworks as well. Frameworks like Ruby on Rails took this Core Data approach, making it very easy to step in and get started. But as you came up against performance bottlenecks, you were forced to learn more and more about how the Rails magic was actually working, and — in the long term — this often resulted in even more effort than just doing the hard work upfront.
+
+In contrast, Node.js positions itself at the opposite end of the spectrum. There is as little hidden magic as possible. It is made up of lightweight modules, which you combine to build a web app. You won't get fancy caching unless you explicitly bring in a module to do that for you. In essence, the developer is in charge. Getting started is a little more difficult, but at each step, you understand the technologies you are using, and there is less technical debt as a result.
+
+Our objective with Impeller is that it should fall firmly in the _lightweight_ category with Node.js, contrasting with Core Data and Rails. It should work more like a toolkit that is used to build a modeling layer for your app, rather than a monolithic system. And there should be as little magic as possible. If you need three-way merging for conflict resolution, you can add it, but, in doing so, will be aware of the tradeoffs you are making. If you want in-memory caching, you can add it, and understand the tradeoffs.
 
 ## Installation
 
