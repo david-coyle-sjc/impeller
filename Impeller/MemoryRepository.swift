@@ -26,13 +26,14 @@ fileprivate struct TimestampCursor: Cursor {
 }
 
 
-public class MemoryRepository: Repository, Exchangable {
+public class MemoryRepository: LocalRepository, Exchangable {
     public var uniqueIdentifier: UniqueIdentifier = uuid()
     private var valueTreesByKey = [String:ValueTree]()
     private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storedType: "")
     private var identifiersOfUnchanged = Set<UniqueIdentifier>()
     private var commitContext: Any?
     private var commitTimestamp = Date.distantPast.timeIntervalSinceReferenceDate
+    private var isDeletionPass = false
 
     public init() {}
     
@@ -195,6 +196,7 @@ public class MemoryRepository: Repository, Exchangable {
     
     /// Resolves conflicts and commits, and sets the value on out to resolved value.
     public func commit<T:Storable>(_ value: inout T, context: Any? = nil) {
+        isDeletionPass = value.metadata.isDeleted
         commitContext = context
         commitTimestamp = Date.timeIntervalSinceReferenceDate
         identifiersOfUnchanged = Set<UniqueIdentifier>()
@@ -246,9 +248,18 @@ public class MemoryRepository: Repository, Exchangable {
             identifiersOfUnchanged.insert(value.metadata.uniqueIdentifier)
         }
         
+        if isDeletionPass {
+            resolvedValue.metadata.isDeleted = true
+        }
+        
         // Always call store, even if unchanged, to check for changed descendents
         resolvedValue.write(in: self)
         value = resolvedValue
+    }
+    
+    public func delete<T:Storable>(_ value: inout T, context: Any? = nil) {
+        value.metadata.isDeleted = true
+        commit(&value, context: context)
     }
     
     public func fetchValue<T:Storable>(identifiedBy uniqueIdentifier:UniqueIdentifier) -> T? {

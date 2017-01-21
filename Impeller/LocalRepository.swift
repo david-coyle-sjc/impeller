@@ -6,7 +6,10 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-public typealias Repository = ReadRepository & WriteRepository
+public protocol LocalRepository: ReadRepository, WriteRepository {
+    func commit<T:Storable>(_ value: inout T, context: Any?)
+    func delete<T:Storable>(_ value: inout T, context: Any?)
+}
 
 
 public protocol ReadRepository: class {
@@ -23,8 +26,6 @@ public protocol ReadRepository: class {
 
 public protocol WriteRepository: class {
     
-    func commit<T:Storable>(_ value: inout T, context: Any?)
-
     func write<T:StorablePrimitive>(_ value:T, for key:String)
     func write<T:StorablePrimitive>(_ optionalValue:T?, for key:String)
     func write<T:StorablePrimitive>(_ values:[T], for key:String)

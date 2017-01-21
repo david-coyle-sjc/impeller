@@ -19,6 +19,7 @@ public struct ValueTreeReference: Equatable {
 public final class ValueTree: Equatable, Hashable {
     public var metadata: Metadata
     public var storedType: StoredType
+    public var isDeleted: Bool
     
     private var propertiesByName = [String:Property]()
     
@@ -33,12 +34,14 @@ public final class ValueTree: Equatable, Hashable {
     public init(storedType: StoredType, metadata: Metadata) {
         self.storedType = storedType
         self.metadata = metadata
+        self.isDeleted = false
     }
     
     public init(deepCopying other:ValueTree) {
         metadata = other.metadata
         storedType = other.storedType
         propertiesByName = other.propertiesByName
+        isDeleted = other.isDeleted
     }
     
     public func get(_ propertyName: String) -> Property? {
@@ -54,7 +57,7 @@ public final class ValueTree: Equatable, Hashable {
     }
     
     public static func ==(left: ValueTree, right: ValueTree) -> Bool {
-        return left.propertiesByName == right.propertiesByName && left.metadata == right.metadata && left.storedType == right.storedType
+        return left.propertiesByName == right.propertiesByName && left.metadata == right.metadata && left.storedType == right.storedType && left.isDeleted == right.isDeleted
     }
     
     func merged(with other: ValueTree?) -> ValueTree {

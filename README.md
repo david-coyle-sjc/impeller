@@ -27,7 +27,7 @@ If achieved, this would facilitate much simpler migration between services and f
 
 Frameworks like Core Data are mature, and very extensive. To really master such a framework takes years. In return, it gives you an easy way to begin, and takes care of a lot details for you. Caching data, merging conflicts, relationship maintenance, and deletion propagation are all features that help you from day one, and which you can generally forget are operating on your behalf.
 
-But there is a downside to having so much _magic_ in a framework, and you usually encounter that as soon as a project goes beyond the basics. At some point, you realize you don't need the data to be cached, or retain cycles are causing objects to hang around that you would like to be deallocated, or data fetches are scaling badly. The _magic_ that was originally working in your favor is now technical debt, and you start to have to pay it back. You have to learn more and more about how the framework is working internally, often reverse engineering or experimenting to understand private implementation details. The short term gain of not having to know the details demands that you learn those details — and more — in the long term.
+But there is a downside to having so much 'magic' in a framework, and you usually encounter that as soon as a project goes beyond the basics. At some point, you realize you don't need the data to be cached, or retain cycles are causing objects to hang around that you would like to be deallocated, or data fetches are scaling badly. The magic that was originally working in your favor is now technical debt, and you start to have to pay it back. You have to learn more and more about how the framework is working internally, often reverse engineering or experimenting to understand private implementation details. The short term gain of not having to know the details demands that you learn those details — and more — in the long term.
 
 This philosophical difference is evident in web frameworks as well. Frameworks like Ruby on Rails took this Core Data approach, making it very easy to step in and get started. But as you came up against performance bottlenecks, you were forced to learn more and more about how the Rails magic was actually working, and — in the long term — this often resulted in even more effort than just doing the hard work upfront.
 
@@ -273,9 +273,9 @@ If the intention was to make a new, independent child, it would be necessary to 
 
 This code would create a whole new `Child` value in the repository, which would be unrelated to the original `Person`.
 
-#### Recursive Trees
+#### Trees with Variable Depth
 
-In theory you can create recursive trees with `struct`s and `protocol`s. For example, it would be possible to create an `AnyStorable` `struct` that forwards all function calls to a wrapped value of a concrete `Storable` type. 
+In theory you can create trees of variable depth using `struct`s and `protocol`s. For example, it would be possible to create an `AnyStorable` `struct` that forwards all function calls to a wrapped value of a concrete `Storable` type. 
 
 At this point, it is unclear if Impeller can be made to work with such types. It is an area of investigation.
 

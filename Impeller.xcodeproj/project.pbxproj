@@ -29,7 +29,7 @@
 		0737AAF31DF9524E00ABBA90 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AAF21DF9524E00ABBA90 /* BasicTests.swift */; };
 		0737AAF51DF9524E00ABBA90 /* Impeller.h in Headers */ = {isa = PBXBuildFile; fileRef = 0737AAE71DF9524D00ABBA90 /* Impeller.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0737AAFF1DF952A200ABBA90 /* Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AAFE1DF952A200ABBA90 /* Metadata.swift */; };
-		0737AB011DF952C000ABBA90 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AB001DF952C000ABBA90 /* Repository.swift */; };
+		0737AB011DF952C000ABBA90 /* LocalRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AB001DF952C000ABBA90 /* LocalRepository.swift */; };
 		0737AB031DF952CB00ABBA90 /* Storable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AB021DF952CB00ABBA90 /* Storable.swift */; };
 		0737AB051DF9530C00ABBA90 /* MemoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AB041DF9530C00ABBA90 /* MemoryRepository.swift */; };
 		0737AB071DF9534300ABBA90 /* General.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0737AB061DF9534300ABBA90 /* General.swift */; };
@@ -97,7 +97,7 @@
 		0737AAF21DF9524E00ABBA90 /* BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicTests.swift; sourceTree = "<group>"; };
 		0737AAF41DF9524E00ABBA90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0737AAFE1DF952A200ABBA90 /* Metadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Metadata.swift; sourceTree = "<group>"; };
-		0737AB001DF952C000ABBA90 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
+		0737AB001DF952C000ABBA90 /* LocalRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalRepository.swift; sourceTree = "<group>"; };
 		0737AB021DF952CB00ABBA90 /* Storable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storable.swift; sourceTree = "<group>"; };
 		0737AB041DF9530C00ABBA90 /* MemoryRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryRepository.swift; sourceTree = "<group>"; };
 		0737AB061DF9534300ABBA90 /* General.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = General.swift; sourceTree = "<group>"; };
@@ -167,7 +167,7 @@
 		071B35C21E16EA7C00781F99 /* Repositories */ = {
 			isa = PBXGroup;
 			children = (
-				0737AB001DF952C000ABBA90 /* Repository.swift */,
+				0737AB001DF952C000ABBA90 /* LocalRepository.swift */,
 				0737AB041DF9530C00ABBA90 /* MemoryRepository.swift */,
 				071B35AE1E15273E00781F99 /* CloudKitRepository.swift */,
 			);
@@ -484,7 +484,7 @@
 				0737AB051DF9530C00ABBA90 /* MemoryRepository.swift in Sources */,
 				073CB7CD1E02F29200E567D7 /* ValueTreeBuilder.swift in Sources */,
 				071B35BF1E16E78300781F99 /* Primitive.swift in Sources */,
-				0737AB011DF952C000ABBA90 /* Repository.swift in Sources */,
+				0737AB011DF952C000ABBA90 /* LocalRepository.swift in Sources */,
 				07C769991E0469920063CB4A /* ValueTree.swift in Sources */,
 				0737AB071DF9534300ABBA90 /* General.swift in Sources */,
 				077C8B5F1E01A80B0073B628 /* StorablePrimitive.swift in Sources */,
