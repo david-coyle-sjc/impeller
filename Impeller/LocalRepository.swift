@@ -8,7 +8,7 @@
 
 public protocol LocalRepository: ReadRepository, WriteRepository {
     func commit<T:Storable>(_ value: inout T, context: Any?)
-    func delete<T:Storable>(_ value: inout T, context: Any?)
+    func delete<T:Storable>(_ value: inout T)
 }
 
 

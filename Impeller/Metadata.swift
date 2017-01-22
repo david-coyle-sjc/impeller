@@ -12,7 +12,7 @@ typealias StoredVersion = UInt64
 public struct Metadata: Equatable {
     
     public enum Key: String {
-        case version, timestamp, uniqueIdentifier
+        case version, timestamp, uniqueIdentifier, isDeleted
     }
         
     public let uniqueIdentifier: UniqueIdentifier

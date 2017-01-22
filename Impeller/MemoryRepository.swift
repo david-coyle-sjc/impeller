@@ -142,24 +142,46 @@ public class MemoryRepository: LocalRepository, Exchangable {
     
     public func write<T:Storable>(_ value: inout T, for key:String) {
         let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
+        
+        // Fetch existing store value of descendant, and delete
+        if let oldReference = valueTreesByKey[currentValueTreeKey]!.get(key)?.asValueTreeReference() {
+            var oldValue: T = fetchValue(identifiedBy: oldReference.uniqueIdentifier)!
+            transaction {
+                isDeletionPass = true
+                currentTreeReference = oldReference
+                writeValueAndDescendants(of: &oldValue)
+            }
+        }
+
+        // Store new property
         let property: Property = .valueTreeReference(reference)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
 
-        // Recurse to store the value's data
+        // Recurse to store the new value's data
         transaction {
             currentTreeReference = reference
-            writeValueAndDescendents(of: &value)
+            writeValueAndDescendants(of: &value)
         }
     }
     
-    // TODO: If nil is passed here, effectively all subtrees are deleted. Need some logic to handle that.
-    // Perhaps we need to wait until we have parent pointers to do this well.
     public func write<T:Storable>(_ value: inout T?, for key:String) {
         var reference: ValueTreeReference!
         if let value = value {
             reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
         }
         
+        // Fetch existing store value of descendant, and delete
+        if  let oldOptionalReference = valueTreesByKey[currentValueTreeKey]!.get(key)?.asOptionalValueTreeReference(),
+            let oldReference = oldOptionalReference {
+            var oldValue: T = fetchValue(identifiedBy: oldReference.uniqueIdentifier)!
+            transaction {
+                isDeletionPass = true
+                currentTreeReference = oldReference
+                writeValueAndDescendants(of: &oldValue)
+            }
+        }
+        
+        // Store new property
         let property: Property = .optionalValueTreeReference(reference)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
         
@@ -168,17 +190,30 @@ public class MemoryRepository: LocalRepository, Exchangable {
         transaction {
             currentTreeReference = reference
             var updatedValue = value!
-            writeValueAndDescendents(of: &updatedValue)
+            writeValueAndDescendants(of: &updatedValue)
             value = updatedValue
         }
     }
     
-    // TODO: Need to determine here which children have been excluded, and explicitly delete them
     public func write<T:Storable>(_ values: inout [T], for key:String) {
         let references = values.map {
             ValueTreeReference(uniqueIdentifier: $0.metadata.uniqueIdentifier, storedType: T.storedType)
         }
         
+        // Determine which values get orphaned, and delete them
+        if let oldReferences = valueTreesByKey[currentValueTreeKey]!.get(key)?.asValueTreeReferences() {
+            let orphanedReferences = Set(oldReferences).subtracting(Set(references))
+            for orphanedReference in orphanedReferences {
+                var orphanedValue: T = fetchValue(identifiedBy: orphanedReference.uniqueIdentifier)!
+                transaction {
+                    isDeletionPass = true
+                    currentTreeReference = orphanedReference
+                    writeValueAndDescendants(of: &orphanedValue)
+                }
+            }
+        }
+        
+        // Store new property
         let property: Property = .valueTreeReferences(references)
         valueTreesByKey[currentValueTreeKey]!.set(key, to: property)
         
@@ -187,24 +222,35 @@ public class MemoryRepository: LocalRepository, Exchangable {
         for (var value, reference) in zip(values, references) {
             transaction {
                 currentTreeReference = reference
-                writeValueAndDescendents(of: &value)
+                writeValueAndDescendants(of: &value)
                 updatedValues.append(value)
             }
         }
         values = updatedValues
     }
     
-    /// Resolves conflicts and commits, and sets the value on out to resolved value.
-    public func commit<T:Storable>(_ value: inout T, context: Any? = nil) {
-        isDeletionPass = value.metadata.isDeleted
-        commitContext = context
+    private func prepareToMakeChanges<T:Storable>(forRoot value: T) {
         commitTimestamp = Date.timeIntervalSinceReferenceDate
         identifiersOfUnchanged = Set<UniqueIdentifier>()
         currentTreeReference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
-        writeValueAndDescendents(of: &value)
+        isDeletionPass = false
+        commitContext = nil
     }
     
-    func writeValueAndDescendents<T:Storable>(of value: inout T) {
+    /// Resolves conflicts and commits, and sets the value on out to resolved value.
+    public func commit<T:Storable>(_ value: inout T, context: Any? = nil) {
+        prepareToMakeChanges(forRoot: value)
+        commitContext = context
+        writeValueAndDescendants(of: &value)
+    }
+    
+    public func delete<T:Storable>(_ value: inout T) {
+        prepareToMakeChanges(forRoot: value)
+        isDeletionPass = true
+        writeValueAndDescendants(of: &value)
+    }
+    
+    private func writeValueAndDescendants<T:Storable>(of value: inout T) {
         let storeValue:T? = fetchValue(identifiedBy: value.metadata.uniqueIdentifier)
         if storeValue == nil {
             valueTreesByKey[currentValueTreeKey] = ValueTree(storedType: T.storedType, metadata: value.metadata)
@@ -252,14 +298,9 @@ public class MemoryRepository: LocalRepository, Exchangable {
             resolvedValue.metadata.isDeleted = true
         }
         
-        // Always call store, even if unchanged, to check for changed descendents
+        // Always call write, even if unchanged, to check for changed descendants
         resolvedValue.write(in: self)
         value = resolvedValue
-    }
-    
-    public func delete<T:Storable>(_ value: inout T, context: Any? = nil) {
-        value.metadata.isDeleted = true
-        commit(&value, context: context)
     }
     
     public func fetchValue<T:Storable>(identifiedBy uniqueIdentifier:UniqueIdentifier) -> T? {
@@ -276,9 +317,11 @@ public class MemoryRepository: LocalRepository, Exchangable {
         return result
     }
     
-    func transaction(in block: (Void)->Void ) {
+    private func transaction(in block: (Void)->Void ) {
         let storedReference = currentTreeReference
+        let isDeletion = isDeletionPass
         block()
+        isDeletionPass = isDeletion
         currentTreeReference = storedReference
     }
 

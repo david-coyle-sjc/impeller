@@ -6,9 +6,13 @@
 //  Copyright © 2016 Drew McCormack. All rights reserved.
 //
 
-public struct ValueTreeReference: Equatable {
+public struct ValueTreeReference: Equatable, Hashable {
     let uniqueIdentifier: UniqueIdentifier
     let storedType: StoredType
+    
+    public var hashValue: Int {
+        return uniqueIdentifier.hash ^ storedType.hash
+    }
     
     public static func ==(left: ValueTreeReference, right: ValueTreeReference) -> Bool {
         return left.uniqueIdentifier == right.uniqueIdentifier && left.storedType == right.storedType
