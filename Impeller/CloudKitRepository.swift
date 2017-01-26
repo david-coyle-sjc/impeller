@@ -152,6 +152,7 @@ extension ValueTree {
     func updateRecord(_ record: CKRecord) {
         record["metadata__timestamp"] = metadata.timestamp as CKRecordValue
         record["metadata__version"] = metadata.version as CKRecordValue
+        record["metadata__isDeleted"] = metadata.isDeleted as CKRecordValue
         for name in propertyNames {
             let property = get(name)!
             
@@ -205,7 +206,7 @@ extension ValueTreeReference {
     
     var recordName: String {
         // Record name is storedType + "__" + unique id. This is because in Impeller,
-        // the uniqueId only has to be unique for a single repository type
+        // the uniqueId only has to be unique for a single stored type
         return "\(storedType)__\(uniqueIdentifier)"
     }
     
@@ -231,7 +232,8 @@ extension CKRecord {
     
     var asValueTree: ValueTree? {
         guard let timestamp = self["metadata__timestamp"] as? TimeInterval,
-              let version = self["metadata__version"] as? StoredVersion else {
+              let version = self["metadata__version"] as? StoredVersion,
+              let isDeleted = self["metadata__isDeleted"] as? Bool else {
             return nil
         }
         
@@ -239,6 +241,7 @@ extension CKRecord {
         var metadata = Metadata(uniqueIdentifier: ref.uniqueIdentifier)
         metadata.version = version
         metadata.timestamp = timestamp
+        metadata.isDeleted = isDeleted
         
         let valueTree = ValueTree(storedType: recordType, metadata: metadata)
         for key in allKeys() {

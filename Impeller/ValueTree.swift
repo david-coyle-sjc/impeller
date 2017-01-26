@@ -79,6 +79,8 @@ public final class ValueTree: Equatable, Hashable {
             mergedTree.metadata.version = max(metadata.version, other.metadata.version+1)
         }
         
+        mergedTree.isDeleted = isDeleted || other.isDeleted
+        
         return mergedTree
     }
 }
