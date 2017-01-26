@@ -11,10 +11,10 @@ import XCTest
 
 class BasicTests: XCTestCase {
     
-    var respository: MemoryRepository!
+    var respository: MonolithicRepository!
     
     override func setUp() {
-        respository = MemoryRepository()
+        respository = MonolithicRepository()
     }
     
     func testSave() {

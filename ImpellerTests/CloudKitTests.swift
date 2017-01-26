@@ -12,8 +12,8 @@ import Impeller
 
 class CloudKitTests: XCTestCase {
     
-    var localRepository1: MemoryRepository!
-    var localRepository2: MemoryRepository!
+    var localRepository1: MonolithicRepository!
+    var localRepository2: MonolithicRepository!
     var cloudRepository: CloudKitRepository!
     var exchange1: Exchange!
     var exchange2: Exchange!
@@ -21,8 +21,8 @@ class CloudKitTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        localRepository1 = MemoryRepository()
-        localRepository2 = MemoryRepository()
+        localRepository1 = MonolithicRepository()
+        localRepository2 = MonolithicRepository()
         
         let database = CKContainer.default().privateCloudDatabase
         cloudRepository = CloudKitRepository(withUniqueIdentifier: "Main", cloudDatabase: database)

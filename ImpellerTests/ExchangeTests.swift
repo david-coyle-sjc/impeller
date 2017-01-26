@@ -11,14 +11,14 @@ import XCTest
 
 class ExchangeTests: XCTestCase {
     
-    var repository1: MemoryRepository!
-    var repository2: MemoryRepository!
+    var repository1: MonolithicRepository!
+    var repository2: MonolithicRepository!
     var exchange: Exchange!
 
     override func setUp() {
         super.setUp()
-        repository1 = MemoryRepository()
-        repository2 = MemoryRepository()
+        repository1 = MonolithicRepository()
+        repository2 = MonolithicRepository()
         exchange = Exchange(coupling: [repository1, repository2], pathForSavedState: nil)
     }
     

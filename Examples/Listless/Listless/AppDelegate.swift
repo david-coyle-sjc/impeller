@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var tasksViewController: TasksViewController!
     
-    let localRepository = MemoryRepository()
+    let localRepository = MonolithicRepository()
     let cloudRepository = CloudKitRepository(withUniqueIdentifier: "Main", cloudDatabase: CKContainer.default().privateCloudDatabase)
     lazy var exchange: Exchange = { Exchange(coupling: [self.localRepository, self.cloudRepository], pathForSavedState: nil) }()
     

@@ -159,7 +159,7 @@ Places where data gets stored are referred to as _repositories_, in keeping with
 
 Each repository type has a different setup. Typically, you simply initialize the repository, and store it in an instance variable on a controller object.
 
-    let localRepository = MemoryRepository()
+    let localRepository = MonolithicRepository()
 
 #### Storing Changes
 

@@ -1,5 +1,5 @@
 //
-//  MemoryRepository
+//  MonolithicRepository
 //  Impeller
 //
 //  Created by Drew McCormack on 08/12/2016.
@@ -26,7 +26,15 @@ fileprivate struct TimestampCursor: Cursor {
 }
 
 
-public class MemoryRepository: LocalRepository, Exchangable {
+public protocol Serializer {
+    func load(from url:URL) throws -> [String:ValueTree]
+    func save(_ valueTreesByKey:[String:ValueTree], to url:URL) throws
+}
+
+
+/// All data is in memory. This class does not persist data to disk,
+/// but other classes can be used to do that.
+public class MonolithicRepository: LocalRepository, Exchangable {
     public var uniqueIdentifier: UniqueIdentifier = uuid()
     private var valueTreesByKey = [String:ValueTree]()
     private var currentTreeReference = ValueTreeReference(uniqueIdentifier: "", storedType: "")
@@ -42,7 +50,7 @@ public class MemoryRepository: LocalRepository, Exchangable {
     }
     
     private var currentValueTreeKey: String {
-        return MemoryRepository.key(for: currentTreeReference)
+        return MonolithicRepository.key(for: currentTreeReference)
     }
     
     private var currentValueTree: ValueTree? {
@@ -143,8 +151,8 @@ public class MemoryRepository: LocalRepository, Exchangable {
     public func write<T:Storable>(_ value: inout T, for key:String) {
         let reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
         
-        // Fetch existing store value of descendant, and delete
-        if let oldReference = valueTreesByKey[currentValueTreeKey]!.get(key)?.asValueTreeReference() {
+        // Fetch existing store value of descendant, and delete (if it differs from new reference)
+        if let oldReference = valueTreesByKey[currentValueTreeKey]!.get(key)?.asValueTreeReference(), reference != oldReference {
             var oldValue: T = fetchValue(identifiedBy: oldReference.uniqueIdentifier)!
             transaction {
                 isDeletionPass = true
@@ -165,14 +173,15 @@ public class MemoryRepository: LocalRepository, Exchangable {
     }
     
     public func write<T:Storable>(_ value: inout T?, for key:String) {
-        var reference: ValueTreeReference!
+        var reference: ValueTreeReference?
         if let value = value {
             reference = ValueTreeReference(uniqueIdentifier: value.metadata.uniqueIdentifier, storedType: T.storedType)
         }
         
         // Fetch existing store value of descendant, and delete
         if  let oldOptionalReference = valueTreesByKey[currentValueTreeKey]!.get(key)?.asOptionalValueTreeReference(),
-            let oldReference = oldOptionalReference {
+            let oldReference = oldOptionalReference,
+            oldOptionalReference != reference {
             var oldValue: T = fetchValue(identifiedBy: oldReference.uniqueIdentifier)!
             transaction {
                 isDeletionPass = true
@@ -188,7 +197,7 @@ public class MemoryRepository: LocalRepository, Exchangable {
         // Recurse to store the value's data
         guard value != nil else { return }
         transaction {
-            currentTreeReference = reference
+            currentTreeReference = reference!
             var updatedValue = value!
             writeValueAndDescendants(of: &updatedValue)
             value = updatedValue
@@ -283,6 +292,12 @@ public class MemoryRepository: LocalRepository, Exchangable {
             resolvedVersion = max(value.metadata.version, storeValue!.metadata.version) + 1
         }
         
+        if isDeletionPass && !resolvedValue.metadata.isDeleted {
+            resolvedValue.metadata.isDeleted = true
+            resolvedVersion += 1
+            changed = true
+        }
+        
         if changed {
             // Store metadata if changed
             resolvedValue.metadata.timestamp = resolvedTimestamp
@@ -294,10 +309,6 @@ public class MemoryRepository: LocalRepository, Exchangable {
             identifiersOfUnchanged.insert(value.metadata.uniqueIdentifier)
         }
         
-        if isDeletionPass {
-            resolvedValue.metadata.isDeleted = true
-        }
-        
         // Always call write, even if unchanged, to check for changed descendants
         resolvedValue.write(in: self)
         value = resolvedValue
@@ -307,7 +318,7 @@ public class MemoryRepository: LocalRepository, Exchangable {
         var result: T?
         transaction {
             currentTreeReference = ValueTreeReference(uniqueIdentifier: uniqueIdentifier, storedType: T.storedType)
-            guard let valueTree = currentValueTree else {
+            guard let valueTree = currentValueTree, !valueTree.metadata.isDeleted else {
                 return
             }
             
@@ -344,12 +355,20 @@ public class MemoryRepository: LocalRepository, Exchangable {
     public func pull(_ valueTrees: [ValueTree], completionHandler completion: @escaping CompletionHandler) {
         for newTree in valueTrees {
             let reference = ValueTreeReference(uniqueIdentifier: newTree.metadata.uniqueIdentifier, storedType: newTree.storedType)
-            let key = MemoryRepository.key(for: reference)
+            let key = MonolithicRepository.key(for: reference)
             valueTreesByKey[key] = newTree.merged(with: valueTreesByKey[key])
         }
         DispatchQueue.main.async {
             completion(nil)
         }
+    }
+    
+    public func load(from url:URL, with serializer: Serializer) throws {
+        try valueTreesByKey = serializer.load(from:url)
+    }
+    
+    public func save(to url:URL, with serializer: Serializer) throws {
+        try serializer.save(valueTreesByKey, to:url)
     }
 }
 
