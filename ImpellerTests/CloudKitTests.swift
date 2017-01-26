@@ -86,10 +86,10 @@ class CloudKitTests: XCTestCase {
         performExchange(for: exchange1)
         performExchange(for: exchange2)
         
-        let parentInRep2:Parent? = localRepository2.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
+        var parentInRep2:Parent? = localRepository2.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
         XCTAssertNotNil(parentInRep2)
         
-        localRepository2.delete(&parentInRep2)
+        localRepository2.delete(&parentInRep2!)
         
         performExchange(for: exchange2)
         performExchange(for: exchange1)
