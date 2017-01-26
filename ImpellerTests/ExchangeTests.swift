@@ -70,6 +70,40 @@ class ExchangeTests: XCTestCase {
         XCTAssertEqual(personInRepository1.name, "Tom")
     }
     
+    func testDeletionsExchange() {
+        var person = Person()
+        person.name = "Bob"
+        person.age = 10
+        repository1.commit(&person)
+        
+        var expectation = self.expectation(description: "exchange")
+        exchange.exchange { error in
+            expectation.fulfill()
+        }
+        
+        self.waitForExpectations(timeout: 0.5)
+        
+        do {
+            let personInRepository2:Person? = repository2.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)
+            XCTAssertNotNil(personInRepository2)
+        }
+        
+        repository1.delete(&person)
+        
+        expectation = self.expectation(description: "exchange")
+        exchange.exchange { error in
+            expectation.fulfill()
+        }
+        
+        self.waitForExpectations(timeout: 0.5)
+        
+        do {
+            let personInRepository2:Person? = repository2.fetchValue(identifiedBy: person.metadata.uniqueIdentifier)
+            XCTAssertNil(personInRepository2)
+        }
+        
+    }
+    
     func testSimultaneousChangesExchange() {
         var personInRepository1 = Person()
         personInRepository1.name = "Bob"

@@ -78,4 +78,23 @@ class CloudKitTests: XCTestCase {
         let parentInRep2:Parent = localRepository2.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)!
         XCTAssertEqual(parentInRep2.child.age, 30)
     }
+    
+    func testExchangeWithDeletion() {
+        var parent = Parent()
+        localRepository1.commit(&parent)
+        
+        performExchange(for: exchange1)
+        performExchange(for: exchange2)
+        
+        let parentInRep2:Parent? = localRepository2.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
+        XCTAssertNotNil(parentInRep2)
+        
+        localRepository2.delete(&parentInRep2)
+        
+        performExchange(for: exchange2)
+        performExchange(for: exchange1)
+        
+        let parentInRep1:Parent? = localRepository1.fetchValue(identifiedBy: parent.metadata.uniqueIdentifier)
+        XCTAssertNil(parentInRep1)
+    }
 }
