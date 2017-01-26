@@ -166,15 +166,13 @@
 			name = Storables;
 			sourceTree = "<group>";
 		};
-		071B35C21E16EA7C00781F99 /* Repositories */ = {
+		071B35C21E16EA7C00781F99 /* Local Repositories */ = {
 			isa = PBXGroup;
 			children = (
 				0737AB001DF952C000ABBA90 /* LocalRepository.swift */,
 				0737AB041DF9530C00ABBA90 /* MonolithicRepository.swift */,
-				0772A0961E3A1703008E85C8 /* JSONSerializer.swift */,
-				071B35AE1E15273E00781F99 /* CloudKitRepository.swift */,
 			);
-			name = Repositories;
+			name = "Local Repositories";
 			sourceTree = "<group>";
 		};
 		071B35C31E16EA8D00781F99 /* Exchange */ = {
@@ -248,7 +246,9 @@
 				0737AB061DF9534300ABBA90 /* General.swift */,
 				071B35C11E16EA5600781F99 /* Storables */,
 				071B35C01E16EA3B00781F99 /* Value Trees */,
-				071B35C21E16EA7C00781F99 /* Repositories */,
+				071B35C21E16EA7C00781F99 /* Local Repositories */,
+				0772A0991E3A1B43008E85C8 /* Remote Repositories */,
+				0772A0981E3A1B29008E85C8 /* Serializers */,
 				071B35C31E16EA8D00781F99 /* Exchange */,
 				0737AAE81DF9524D00ABBA90 /* Info.plist */,
 			);
@@ -268,6 +268,22 @@
 			);
 			name = "Impeller Tests";
 			path = ImpellerTests;
+			sourceTree = "<group>";
+		};
+		0772A0981E3A1B29008E85C8 /* Serializers */ = {
+			isa = PBXGroup;
+			children = (
+				0772A0961E3A1703008E85C8 /* JSONSerializer.swift */,
+			);
+			name = Serializers;
+			sourceTree = "<group>";
+		};
+		0772A0991E3A1B43008E85C8 /* Remote Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				071B35AE1E15273E00781F99 /* CloudKitRepository.swift */,
+			);
+			name = "Remote Repositories";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
